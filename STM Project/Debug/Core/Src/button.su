@@ -1,0 +1,6 @@
+../Core/Src/button.c:35:6:button_reading	16	static
+../Core/Src/button.c:86:5:is_button1_pressed	4	static
+../Core/Src/button.c:97:5:is_button2_pressed	4	static
+../Core/Src/button.c:108:5:is_button3_pressed	4	static
+../Core/Src/button.c:119:5:is_pede_button_pressed	4	static
+../Core/Src/button.c:130:5:is_button2_press1s	4	static
