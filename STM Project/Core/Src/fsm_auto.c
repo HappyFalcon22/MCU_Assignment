@@ -13,11 +13,10 @@
  * S2: road1 yellow, road2 red
  * S3: road1 red, road2 green
  * S4: road1 red, road2 yellow
- * INIT: check error and initate timer
+ * INIT: check error and initiate timer
  *
  * Timer1: control time of road1
  * Timer2: control time of road2
- * Timer3: control blinking led
  */
 void fsm_automatic_run()
 {
@@ -39,7 +38,6 @@ void fsm_automatic_run()
 		//no error, prepare for changing to S1
 		setTimer1(green_time);
 		setTimer2(red_time);
-
 		state = S1;
 		break;
 	case S1:
