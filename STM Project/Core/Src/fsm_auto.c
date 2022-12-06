@@ -39,7 +39,6 @@ void fsm_automatic_run()
 		//no error, prepare for changing to S1
 		setTimer1(green_time);
 		setTimer2(red_time);
-		setTimer3(1000);  		//blink led
 
 		state = S1;
 		break;
