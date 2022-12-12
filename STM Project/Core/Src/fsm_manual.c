@@ -36,6 +36,8 @@ void fsm_manual_run()
 		//Mode_button is pressed -> turn to GREEN_ADJUST
 		if(is_button1_pressed()){
 			state = GREEN_ADJUST;
+			green1_on();
+			green2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -81,6 +83,8 @@ void fsm_manual_run()
 		//Mode_button is pressed -> turn to YELLOW_ADJUST
 		if(is_button1_pressed()){
 			state = YELLOW_ADJUST;
+			yellow1_on();
+			yellow2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();

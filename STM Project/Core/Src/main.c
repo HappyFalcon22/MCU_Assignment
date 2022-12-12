@@ -97,7 +97,7 @@ int main(void)
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
-	state = INIT;
+	//state = INIT;
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

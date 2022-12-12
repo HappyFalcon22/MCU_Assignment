@@ -27,6 +27,7 @@ void fsm_automatic_run()
 			//error state
 			//trap here until mode_button is pressed
 			//and go to RED_ADJUST mode to change value again
+			turn_all_led_off();
 			if(is_button1_pressed()){
 				state = RED_ADJUST;
 				//reset all button flag
@@ -38,6 +39,7 @@ void fsm_automatic_run()
 		//no error, prepare for changing to S1
 		setTimer1(green_time);
 		setTimer2(red_time);
+		setTimer3(BLINK_TIME);
 		state = S1;
 		break;
 	case S1:
@@ -53,6 +55,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual: RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -71,6 +75,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -89,6 +95,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -101,6 +109,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();

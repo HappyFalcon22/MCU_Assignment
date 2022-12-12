@@ -11,6 +11,8 @@
 #include "global.h"
 #include "main.h"
 
+#define BLINK_TIME 1000
+
 extern int timer1_flag;
 extern int timer2_flag;
 extern int timer3_flag;
