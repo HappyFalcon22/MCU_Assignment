@@ -111,7 +111,7 @@ void fsm_automatic_run()
 		if(timer2_flag == 1){
 			setTimer1(green_time);
 			setTimer2(red_time);
-			state = S4;
+			state = S1;
 		}
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
