@@ -69,6 +69,7 @@ void fsm_automatic_run()
 		//road1 timeout -> turn to state S3
 		if(timer1_flag == 1){
 			setTimer1(red_time);
+			setTimer2(green_time);
 			state = S3;
 		}
 
@@ -106,6 +107,12 @@ void fsm_automatic_run()
 		red1_on();
 		yellow2_on();
 
+		//road2 timeout -> turn to state S4
+		if(timer2_flag == 1){
+			setTimer1(green_time);
+			setTimer2(red_time);
+			state = S4;
+		}
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
