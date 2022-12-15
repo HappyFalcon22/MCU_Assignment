@@ -104,7 +104,7 @@ int main(void)
 	setTimer5(BASE_DELAY);
 	setTimer4(10000);
 
-	SEG_counter = 10; // Delete later
+	SEG_counter = BASE_TIME; // Delete later
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

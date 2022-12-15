@@ -18,6 +18,13 @@ int i = 0;
 const int a = (BASE_DELAY - LAST_DELAY) / BASE_TIME;
 const int b = LAST_DELAY;
 
+// Set a linear equation for the volume of the buzzer
+// Take 2 points : (time, delay) = ((BASE_TIME, BASE_VALUE); (0, LAST_VALUE))
+// Built the coefficients c, d of : y = cx + d
+
+const int c = (BASE_VALUE - LAST_VALUE) / BASE_TIME;
+const int d = LAST_VALUE;
+
 void buzzerRun()
 {
 	if (timer5_flag == 1)
@@ -27,9 +34,7 @@ void buzzerRun()
 		i = (i + 1) % 2;
 		// This is the equation with desired coefficients
 		delay = a * SEG_counter + b;
-		value[0] += 10;
-		if (value[0] >= 999)
-			value[0] = 100;
+		value[0] = c * SEG_counter + d;
 	}
 	if (timer4_flag == 1)
 	{

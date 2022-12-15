@@ -14,9 +14,16 @@
 
 #define	START	100
 #define	OFF		0
-#define BASE_TIME	10
+#define BASE_TIME	50
+
+// Start and End desired delay
 #define BASE_DELAY	5000
 #define LAST_DELAY	200
+
+// Start and End desired volume (as value)
+#define BASE_VALUE	100
+#define LAST_VALUE	990
+
 
 extern int value[2];
 extern int step;
