@@ -21,6 +21,12 @@ extern uint32_t temp_red_time;
 extern uint32_t temp_green_time;
 extern uint32_t temp_yellow_time;
 
+// Add a counter
+extern uint32_t SEG_counter;
+
+// Declare huart2 in global
+extern UART_HandleTypeDef huart2;
+
 //define a fsm with 8 state
 enum status{
 	INIT = 0,				// initial state
@@ -33,7 +39,8 @@ enum status{
 	GREEN_ADJUST = 13		// adjust time of green led
 };
 
-
 extern enum status state;
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart);
 
 #endif /* INC_GLOBAL_H_ */

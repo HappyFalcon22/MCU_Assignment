@@ -16,12 +16,14 @@
 extern int timer1_flag;
 extern int timer2_flag;
 extern int timer3_flag;
+extern int timer4_flag; // For 7SEG Counter
 
 void timerRun();
 
 void setTimer1(uint32_t duration);
 void setTimer2(uint32_t duration);
 void setTimer3(uint32_t duration);
+void setTimer4(uint32_t duration);
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 

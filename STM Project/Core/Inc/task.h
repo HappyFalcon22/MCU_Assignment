@@ -21,5 +21,13 @@ void green2_on();
 void yellow1_on();
 void yellow2_on();
 
+// Light for pedestrians
+void red_pedes_on();
+void green_pedes_on();
+
+
+// UART transmission of count-down time
+void UART_Parse(uint32_t time);
+
 void turn_all_led_off();
 #endif /* INC_TASK_H_ */
