@@ -89,8 +89,8 @@ void timerRun(){
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-		button_reading();
-		timerRun();
+	button_reading();
+	timerRun();
 }
 
 

@@ -27,7 +27,7 @@ void green_pedes_on();
 
 
 // UART transmission of count-down time
-void UART_Parse(uint32_t time);
+void UART_Parse();
 
 void turn_all_led_off();
 #endif /* INC_TASK_H_ */

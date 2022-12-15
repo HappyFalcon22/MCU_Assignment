@@ -1,0 +1,523 @@
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"software_timer.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.global	TIMER_CYCLE
+  18              		.section	.rodata.TIMER_CYCLE,"a"
+  19              		.align	2
+  22              	TIMER_CYCLE:
+  23 0000 0A000000 		.word	10
+  24              		.global	timer1_flag
+  25              		.section	.bss.timer1_flag,"aw",%nobits
+  26              		.align	2
+  29              	timer1_flag:
+  30 0000 00000000 		.space	4
+  31              		.global	timer1_counter
+  32              		.section	.bss.timer1_counter,"aw",%nobits
+  33              		.align	2
+  36              	timer1_counter:
+  37 0000 00000000 		.space	4
+  38              		.global	timer2_flag
+  39              		.section	.bss.timer2_flag,"aw",%nobits
+  40              		.align	2
+  43              	timer2_flag:
+  44 0000 00000000 		.space	4
+  45              		.global	timer2_counter
+  46              		.section	.bss.timer2_counter,"aw",%nobits
+  47              		.align	2
+  50              	timer2_counter:
+  51 0000 00000000 		.space	4
+  52              		.global	timer3_flag
+  53              		.section	.bss.timer3_flag,"aw",%nobits
+  54              		.align	2
+  57              	timer3_flag:
+  58 0000 00000000 		.space	4
+  59              		.global	timer3_counter
+  60              		.section	.bss.timer3_counter,"aw",%nobits
+  61              		.align	2
+  64              	timer3_counter:
+  65 0000 00000000 		.space	4
+  66              		.section	.text.setTimer1,"ax",%progbits
+  67              		.align	1
+  68              		.global	setTimer1
+  69              		.syntax unified
+  70              		.thumb
+  71              		.thumb_func
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 2
+
+
+  73              	setTimer1:
+  74              	.LFB65:
+  75              		.file 1 "./Core/Src/software_timer.c"
+   1:./Core/Src/software_timer.c **** /*
+   2:./Core/Src/software_timer.c ****  * software_timer.c
+   3:./Core/Src/software_timer.c ****  *
+   4:./Core/Src/software_timer.c ****  *  Created on: Nov 30, 2022
+   5:./Core/Src/software_timer.c ****  *      Author: Admin
+   6:./Core/Src/software_timer.c ****  */
+   7:./Core/Src/software_timer.c **** #include "global.h"
+   8:./Core/Src/software_timer.c **** 
+   9:./Core/Src/software_timer.c **** const int TIMER_CYCLE = 10;
+  10:./Core/Src/software_timer.c **** 
+  11:./Core/Src/software_timer.c **** int timer1_flag = 0;
+  12:./Core/Src/software_timer.c **** int timer1_counter = 0;
+  13:./Core/Src/software_timer.c **** 
+  14:./Core/Src/software_timer.c **** int timer2_flag = 0;
+  15:./Core/Src/software_timer.c **** int timer2_counter = 0;
+  16:./Core/Src/software_timer.c **** 
+  17:./Core/Src/software_timer.c **** int timer3_flag = 0;
+  18:./Core/Src/software_timer.c **** int timer3_counter = 0;
+  19:./Core/Src/software_timer.c **** 
+  20:./Core/Src/software_timer.c **** 
+  21:./Core/Src/software_timer.c **** void setTimer1(uint32_t duration){
+  76              		.loc 1 21 34
+  77              		.cfi_startproc
+  78              		@ args = 0, pretend = 0, frame = 8
+  79              		@ frame_needed = 1, uses_anonymous_args = 0
+  80              		@ link register save eliminated.
+  81 0000 80B4     		push	{r7}
+  82              		.cfi_def_cfa_offset 4
+  83              		.cfi_offset 7, -4
+  84 0002 83B0     		sub	sp, sp, #12
+  85              		.cfi_def_cfa_offset 16
+  86 0004 00AF     		add	r7, sp, #0
+  87              		.cfi_def_cfa_register 7
+  88 0006 7860     		str	r0, [r7, #4]
+  22:./Core/Src/software_timer.c **** 	timer1_counter = duration/TIMER_CYCLE;
+  89              		.loc 1 22 27
+  90 0008 0A23     		movs	r3, #10
+  91 000a 1A46     		mov	r2, r3
+  92 000c 7B68     		ldr	r3, [r7, #4]
+  93 000e B3FBF2F3 		udiv	r3, r3, r2
+  94 0012 1A46     		mov	r2, r3
+  95              		.loc 1 22 17
+  96 0014 044B     		ldr	r3, .L2
+  97 0016 1A60     		str	r2, [r3]
+  23:./Core/Src/software_timer.c **** 	timer1_flag = 0;
+  98              		.loc 1 23 14
+  99 0018 044B     		ldr	r3, .L2+4
+ 100 001a 0022     		movs	r2, #0
+ 101 001c 1A60     		str	r2, [r3]
+  24:./Core/Src/software_timer.c **** }
+ 102              		.loc 1 24 1
+ 103 001e 00BF     		nop
+ 104 0020 0C37     		adds	r7, r7, #12
+ 105              		.cfi_def_cfa_offset 4
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 3
+
+
+ 106 0022 BD46     		mov	sp, r7
+ 107              		.cfi_def_cfa_register 13
+ 108              		@ sp needed
+ 109 0024 80BC     		pop	{r7}
+ 110              		.cfi_restore 7
+ 111              		.cfi_def_cfa_offset 0
+ 112 0026 7047     		bx	lr
+ 113              	.L3:
+ 114              		.align	2
+ 115              	.L2:
+ 116 0028 00000000 		.word	timer1_counter
+ 117 002c 00000000 		.word	timer1_flag
+ 118              		.cfi_endproc
+ 119              	.LFE65:
+ 121              		.section	.text.setTimer2,"ax",%progbits
+ 122              		.align	1
+ 123              		.global	setTimer2
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	setTimer2:
+ 129              	.LFB66:
+  25:./Core/Src/software_timer.c **** 
+  26:./Core/Src/software_timer.c **** void setTimer2(uint32_t duration){
+ 130              		.loc 1 26 34
+ 131              		.cfi_startproc
+ 132              		@ args = 0, pretend = 0, frame = 8
+ 133              		@ frame_needed = 1, uses_anonymous_args = 0
+ 134              		@ link register save eliminated.
+ 135 0000 80B4     		push	{r7}
+ 136              		.cfi_def_cfa_offset 4
+ 137              		.cfi_offset 7, -4
+ 138 0002 83B0     		sub	sp, sp, #12
+ 139              		.cfi_def_cfa_offset 16
+ 140 0004 00AF     		add	r7, sp, #0
+ 141              		.cfi_def_cfa_register 7
+ 142 0006 7860     		str	r0, [r7, #4]
+  27:./Core/Src/software_timer.c **** 	timer2_counter = duration/TIMER_CYCLE;
+ 143              		.loc 1 27 27
+ 144 0008 0A23     		movs	r3, #10
+ 145 000a 1A46     		mov	r2, r3
+ 146 000c 7B68     		ldr	r3, [r7, #4]
+ 147 000e B3FBF2F3 		udiv	r3, r3, r2
+ 148 0012 1A46     		mov	r2, r3
+ 149              		.loc 1 27 17
+ 150 0014 044B     		ldr	r3, .L5
+ 151 0016 1A60     		str	r2, [r3]
+  28:./Core/Src/software_timer.c **** 	timer2_flag = 0;
+ 152              		.loc 1 28 14
+ 153 0018 044B     		ldr	r3, .L5+4
+ 154 001a 0022     		movs	r2, #0
+ 155 001c 1A60     		str	r2, [r3]
+  29:./Core/Src/software_timer.c **** }
+ 156              		.loc 1 29 1
+ 157 001e 00BF     		nop
+ 158 0020 0C37     		adds	r7, r7, #12
+ 159              		.cfi_def_cfa_offset 4
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 4
+
+
+ 160 0022 BD46     		mov	sp, r7
+ 161              		.cfi_def_cfa_register 13
+ 162              		@ sp needed
+ 163 0024 80BC     		pop	{r7}
+ 164              		.cfi_restore 7
+ 165              		.cfi_def_cfa_offset 0
+ 166 0026 7047     		bx	lr
+ 167              	.L6:
+ 168              		.align	2
+ 169              	.L5:
+ 170 0028 00000000 		.word	timer2_counter
+ 171 002c 00000000 		.word	timer2_flag
+ 172              		.cfi_endproc
+ 173              	.LFE66:
+ 175              		.section	.text.setTimer3,"ax",%progbits
+ 176              		.align	1
+ 177              		.global	setTimer3
+ 178              		.syntax unified
+ 179              		.thumb
+ 180              		.thumb_func
+ 182              	setTimer3:
+ 183              	.LFB67:
+  30:./Core/Src/software_timer.c **** 
+  31:./Core/Src/software_timer.c **** void setTimer3(uint32_t duration){
+ 184              		.loc 1 31 34
+ 185              		.cfi_startproc
+ 186              		@ args = 0, pretend = 0, frame = 8
+ 187              		@ frame_needed = 1, uses_anonymous_args = 0
+ 188              		@ link register save eliminated.
+ 189 0000 80B4     		push	{r7}
+ 190              		.cfi_def_cfa_offset 4
+ 191              		.cfi_offset 7, -4
+ 192 0002 83B0     		sub	sp, sp, #12
+ 193              		.cfi_def_cfa_offset 16
+ 194 0004 00AF     		add	r7, sp, #0
+ 195              		.cfi_def_cfa_register 7
+ 196 0006 7860     		str	r0, [r7, #4]
+  32:./Core/Src/software_timer.c **** 	timer3_counter = duration/TIMER_CYCLE;
+ 197              		.loc 1 32 27
+ 198 0008 0A23     		movs	r3, #10
+ 199 000a 1A46     		mov	r2, r3
+ 200 000c 7B68     		ldr	r3, [r7, #4]
+ 201 000e B3FBF2F3 		udiv	r3, r3, r2
+ 202 0012 1A46     		mov	r2, r3
+ 203              		.loc 1 32 17
+ 204 0014 044B     		ldr	r3, .L8
+ 205 0016 1A60     		str	r2, [r3]
+  33:./Core/Src/software_timer.c **** 	timer3_flag = 0;
+ 206              		.loc 1 33 14
+ 207 0018 044B     		ldr	r3, .L8+4
+ 208 001a 0022     		movs	r2, #0
+ 209 001c 1A60     		str	r2, [r3]
+  34:./Core/Src/software_timer.c **** }
+ 210              		.loc 1 34 1
+ 211 001e 00BF     		nop
+ 212 0020 0C37     		adds	r7, r7, #12
+ 213              		.cfi_def_cfa_offset 4
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 5
+
+
+ 214 0022 BD46     		mov	sp, r7
+ 215              		.cfi_def_cfa_register 13
+ 216              		@ sp needed
+ 217 0024 80BC     		pop	{r7}
+ 218              		.cfi_restore 7
+ 219              		.cfi_def_cfa_offset 0
+ 220 0026 7047     		bx	lr
+ 221              	.L9:
+ 222              		.align	2
+ 223              	.L8:
+ 224 0028 00000000 		.word	timer3_counter
+ 225 002c 00000000 		.word	timer3_flag
+ 226              		.cfi_endproc
+ 227              	.LFE67:
+ 229              		.section	.text.timerRun,"ax",%progbits
+ 230              		.align	1
+ 231              		.global	timerRun
+ 232              		.syntax unified
+ 233              		.thumb
+ 234              		.thumb_func
+ 236              	timerRun:
+ 237              	.LFB68:
+  35:./Core/Src/software_timer.c **** 
+  36:./Core/Src/software_timer.c **** 
+  37:./Core/Src/software_timer.c **** void timerRun(){
+ 238              		.loc 1 37 16
+ 239              		.cfi_startproc
+ 240              		@ args = 0, pretend = 0, frame = 0
+ 241              		@ frame_needed = 1, uses_anonymous_args = 0
+ 242              		@ link register save eliminated.
+ 243 0000 80B4     		push	{r7}
+ 244              		.cfi_def_cfa_offset 4
+ 245              		.cfi_offset 7, -4
+ 246 0002 00AF     		add	r7, sp, #0
+ 247              		.cfi_def_cfa_register 7
+  38:./Core/Src/software_timer.c **** 	if(timer1_counter >0){
+ 248              		.loc 1 38 20
+ 249 0004 194B     		ldr	r3, .L15
+ 250 0006 1B68     		ldr	r3, [r3]
+ 251              		.loc 1 38 4
+ 252 0008 002B     		cmp	r3, #0
+ 253 000a 0BDD     		ble	.L11
+  39:./Core/Src/software_timer.c **** 		timer1_counter--;
+ 254              		.loc 1 39 17
+ 255 000c 174B     		ldr	r3, .L15
+ 256 000e 1B68     		ldr	r3, [r3]
+ 257 0010 013B     		subs	r3, r3, #1
+ 258 0012 164A     		ldr	r2, .L15
+ 259 0014 1360     		str	r3, [r2]
+  40:./Core/Src/software_timer.c **** 		if(timer1_counter <=0){
+ 260              		.loc 1 40 21
+ 261 0016 154B     		ldr	r3, .L15
+ 262 0018 1B68     		ldr	r3, [r3]
+ 263              		.loc 1 40 5
+ 264 001a 002B     		cmp	r3, #0
+ 265 001c 02DC     		bgt	.L11
+  41:./Core/Src/software_timer.c **** 			timer1_flag =1;
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 6
+
+
+ 266              		.loc 1 41 16
+ 267 001e 144B     		ldr	r3, .L15+4
+ 268 0020 0122     		movs	r2, #1
+ 269 0022 1A60     		str	r2, [r3]
+ 270              	.L11:
+  42:./Core/Src/software_timer.c **** 		}
+  43:./Core/Src/software_timer.c **** 	}
+  44:./Core/Src/software_timer.c **** 	if(timer2_counter >0){
+ 271              		.loc 1 44 20
+ 272 0024 134B     		ldr	r3, .L15+8
+ 273 0026 1B68     		ldr	r3, [r3]
+ 274              		.loc 1 44 4
+ 275 0028 002B     		cmp	r3, #0
+ 276 002a 0BDD     		ble	.L12
+  45:./Core/Src/software_timer.c **** 			timer2_counter--;
+ 277              		.loc 1 45 18
+ 278 002c 114B     		ldr	r3, .L15+8
+ 279 002e 1B68     		ldr	r3, [r3]
+ 280 0030 013B     		subs	r3, r3, #1
+ 281 0032 104A     		ldr	r2, .L15+8
+ 282 0034 1360     		str	r3, [r2]
+  46:./Core/Src/software_timer.c **** 			if(timer2_counter <=0){
+ 283              		.loc 1 46 22
+ 284 0036 0F4B     		ldr	r3, .L15+8
+ 285 0038 1B68     		ldr	r3, [r3]
+ 286              		.loc 1 46 6
+ 287 003a 002B     		cmp	r3, #0
+ 288 003c 02DC     		bgt	.L12
+  47:./Core/Src/software_timer.c **** 				timer2_flag =1;
+ 289              		.loc 1 47 17
+ 290 003e 0E4B     		ldr	r3, .L15+12
+ 291 0040 0122     		movs	r2, #1
+ 292 0042 1A60     		str	r2, [r3]
+ 293              	.L12:
+  48:./Core/Src/software_timer.c **** 			}
+  49:./Core/Src/software_timer.c **** 		}
+  50:./Core/Src/software_timer.c **** 	if(timer3_counter >0){
+ 294              		.loc 1 50 20
+ 295 0044 0D4B     		ldr	r3, .L15+16
+ 296 0046 1B68     		ldr	r3, [r3]
+ 297              		.loc 1 50 4
+ 298 0048 002B     		cmp	r3, #0
+ 299 004a 0BDD     		ble	.L14
+  51:./Core/Src/software_timer.c **** 			timer3_counter--;
+ 300              		.loc 1 51 18
+ 301 004c 0B4B     		ldr	r3, .L15+16
+ 302 004e 1B68     		ldr	r3, [r3]
+ 303 0050 013B     		subs	r3, r3, #1
+ 304 0052 0A4A     		ldr	r2, .L15+16
+ 305 0054 1360     		str	r3, [r2]
+  52:./Core/Src/software_timer.c **** 			if(timer3_counter <=0){
+ 306              		.loc 1 52 22
+ 307 0056 094B     		ldr	r3, .L15+16
+ 308 0058 1B68     		ldr	r3, [r3]
+ 309              		.loc 1 52 6
+ 310 005a 002B     		cmp	r3, #0
+ 311 005c 02DC     		bgt	.L14
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 7
+
+
+  53:./Core/Src/software_timer.c **** 				timer3_flag =1;
+ 312              		.loc 1 53 17
+ 313 005e 084B     		ldr	r3, .L15+20
+ 314 0060 0122     		movs	r2, #1
+ 315 0062 1A60     		str	r2, [r3]
+ 316              	.L14:
+  54:./Core/Src/software_timer.c **** 			}
+  55:./Core/Src/software_timer.c **** 	}
+  56:./Core/Src/software_timer.c **** }
+ 317              		.loc 1 56 1
+ 318 0064 00BF     		nop
+ 319 0066 BD46     		mov	sp, r7
+ 320              		.cfi_def_cfa_register 13
+ 321              		@ sp needed
+ 322 0068 80BC     		pop	{r7}
+ 323              		.cfi_restore 7
+ 324              		.cfi_def_cfa_offset 0
+ 325 006a 7047     		bx	lr
+ 326              	.L16:
+ 327              		.align	2
+ 328              	.L15:
+ 329 006c 00000000 		.word	timer1_counter
+ 330 0070 00000000 		.word	timer1_flag
+ 331 0074 00000000 		.word	timer2_counter
+ 332 0078 00000000 		.word	timer2_flag
+ 333 007c 00000000 		.word	timer3_counter
+ 334 0080 00000000 		.word	timer3_flag
+ 335              		.cfi_endproc
+ 336              	.LFE68:
+ 338              		.section	.text.HAL_TIM_PeriodElapsedCallback,"ax",%progbits
+ 339              		.align	1
+ 340              		.global	HAL_TIM_PeriodElapsedCallback
+ 341              		.syntax unified
+ 342              		.thumb
+ 343              		.thumb_func
+ 345              	HAL_TIM_PeriodElapsedCallback:
+ 346              	.LFB69:
+  57:./Core/Src/software_timer.c **** 
+  58:./Core/Src/software_timer.c **** 
+  59:./Core/Src/software_timer.c **** void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+  60:./Core/Src/software_timer.c **** {
+ 347              		.loc 1 60 1
+ 348              		.cfi_startproc
+ 349              		@ args = 0, pretend = 0, frame = 8
+ 350              		@ frame_needed = 1, uses_anonymous_args = 0
+ 351 0000 80B5     		push	{r7, lr}
+ 352              		.cfi_def_cfa_offset 8
+ 353              		.cfi_offset 7, -8
+ 354              		.cfi_offset 14, -4
+ 355 0002 82B0     		sub	sp, sp, #8
+ 356              		.cfi_def_cfa_offset 16
+ 357 0004 00AF     		add	r7, sp, #0
+ 358              		.cfi_def_cfa_register 7
+ 359 0006 7860     		str	r0, [r7, #4]
+  61:./Core/Src/software_timer.c **** 		button_reading();
+ 360              		.loc 1 61 3
+ 361 0008 FFF7FEFF 		bl	button_reading
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 8
+
+
+  62:./Core/Src/software_timer.c **** 		timerRun();
+ 362              		.loc 1 62 3
+ 363 000c FFF7FEFF 		bl	timerRun
+  63:./Core/Src/software_timer.c **** }
+ 364              		.loc 1 63 1
+ 365 0010 00BF     		nop
+ 366 0012 0837     		adds	r7, r7, #8
+ 367              		.cfi_def_cfa_offset 8
+ 368 0014 BD46     		mov	sp, r7
+ 369              		.cfi_def_cfa_register 13
+ 370              		@ sp needed
+ 371 0016 80BD     		pop	{r7, pc}
+ 372              		.cfi_endproc
+ 373              	.LFE69:
+ 375              		.text
+ 376              	.Letext0:
+ 377              		.file 2 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 378              		.file 3 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 379              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 380              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h"
+ 381              		.file 6 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h"
+ 382              		.file 7 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h"
+ 383              		.file 8 "Core/Inc/software_timer.h"
+ 384              		.file 9 "Core/Inc/button.h"
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 9
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 software_timer.c
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:22     .rodata.TIMER_CYCLE:0000000000000000 TIMER_CYCLE
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:19     .rodata.TIMER_CYCLE:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:29     .bss.timer1_flag:0000000000000000 timer1_flag
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:26     .bss.timer1_flag:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:36     .bss.timer1_counter:0000000000000000 timer1_counter
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:33     .bss.timer1_counter:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:43     .bss.timer2_flag:0000000000000000 timer2_flag
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:40     .bss.timer2_flag:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:50     .bss.timer2_counter:0000000000000000 timer2_counter
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:47     .bss.timer2_counter:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:57     .bss.timer3_flag:0000000000000000 timer3_flag
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:54     .bss.timer3_flag:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:64     .bss.timer3_counter:0000000000000000 timer3_counter
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:61     .bss.timer3_counter:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:67     .text.setTimer1:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:73     .text.setTimer1:0000000000000000 setTimer1
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:116    .text.setTimer1:0000000000000028 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:122    .text.setTimer2:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:128    .text.setTimer2:0000000000000000 setTimer2
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:170    .text.setTimer2:0000000000000028 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:176    .text.setTimer3:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:182    .text.setTimer3:0000000000000000 setTimer3
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:224    .text.setTimer3:0000000000000028 $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:230    .text.timerRun:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:236    .text.timerRun:0000000000000000 timerRun
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:329    .text.timerRun:000000000000006c $d
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:339    .text.HAL_TIM_PeriodElapsedCallback:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s:345    .text.HAL_TIM_PeriodElapsedCallback:0000000000000000 HAL_TIM_PeriodElapsedCallback
+                           .group:0000000000000000 wm4.0.cb5f01749778df26340c4505df3d34d0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.22.844a2f06328adeab13e6d7f89c6deb9b
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.208bb8a61c892b7c37d899c49a031330
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4._newlib_version.h.4.bfdf54b0af045d4a71376ae00f63a22c
+                           .group:0000000000000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.cmsis_version.h.32.4d5822004c01a829a975260e854b5f8e
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.4f5798e999d5690b80e6ded3ecc94b37
+                           .group:0000000000000000 wm4.core_cm3.h.127.f4474120f1a7524deb56f9d74ff175da
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.23.91ba5b544a4c2be2620a1e7ff0049e10
+                           .group:0000000000000000 wm4.stddef.h.39.144cf5ddcd53cbfdac30259dc1a6c87f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.57.18d01ce1aa74e9fb44dbf16f821a574a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.95.21591bbc513aaa813c0b8640c3b32517
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.22.8763f99bc1e3e2dcf0febe9161d81b37
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1202.f8e5f9e0cf4eef7840facf5396029056
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.22.fa638d688dcc57ca806fe6a7831b0d04
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.22.51a50ef3512cd78017ce666a32d364bf
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.263.f5ebf2f545ade59412ab9261c8e35dc4
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.22.e26491d042c8079c3ca67eca341af862
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.22.3c14338534886827bf3aeaa2a7f412a1
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\cc9Rji4a.s 			page 10
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.22.001ac4d7f81ccbdcae49bd65c13858c8
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.409.cafcd2cfe701091535636be537c18293
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.22.b5f4174bb6a50d95405567b8f50e0900
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.22.5cea9a7210e6315b41724b47b5fdf203
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.22.d4e19c21f2a86fa2f8ec2c2d5f1ab2af
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.22.3438c476faafc3240bf146f143df3fcd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.22.a16e206564e97dbace9faae59a0d6008
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.22.5f7992e497faa36aa98f09f7214f4dbb
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.88.91065c0692bed6019c34f1e9c00589fd
+                           .group:0000000000000000 wm4.main.h.62.d895ccf9707ed1f9c21d5d1ab82a4f23
+
+UNDEFINED SYMBOLS
+button_reading

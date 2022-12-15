@@ -26,7 +26,8 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_yellow_time = temp_yellow_time% 30000 + 1000;
-			UART_Parse(temp_yellow_time);
+			SEG_counter = temp_yellow_time;
+			UART_Parse();
 		}
 
 		//set_button is pressed -> save temp value
@@ -42,6 +43,9 @@ void fsm_manual_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			SEG_counter = temp_green_time;
+			UART_Parse();
 		}
 		break;
 	case GREEN_ADJUST:
@@ -52,7 +56,8 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_green_time = temp_green_time% 30000 + 1000;
-			UART_Parse(temp_yellow_time);
+			SEG_counter = temp_green_time;
+			UART_Parse();
 		}
 
 		//set_button is pressed -> save temp value
@@ -76,7 +81,8 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_red_time = temp_red_time% 30000 + 1000;
-			UART_Parse(temp_yellow_time);
+			SEG_counter = temp_red_time;
+			UART_Parse();
 		}
 		//set_button is pressed -> save temp value
 		if(is_button3_pressed()){
@@ -91,6 +97,9 @@ void fsm_manual_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			SEG_counter = temp_yellow_time;
+			UART_Parse();
 		}
 		break;
 	default:

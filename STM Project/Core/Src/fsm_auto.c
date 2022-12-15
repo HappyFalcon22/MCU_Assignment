@@ -17,6 +17,7 @@
  *
  * Timer1: control time of road1
  * Timer2: control time of road2
+ * Timer3: count down for uart in auto
  */
 void fsm_automatic_run()
 {
@@ -31,15 +32,18 @@ void fsm_automatic_run()
 			turn_all_led_off();
 			if(is_button1_pressed()){
 				state = RED_ADJUST;
+				//display temp time
+				SEG_counter = temp_red_time;
+				UART_Parse();
 				//reset all button flag
 				is_button2_pressed();
 				is_button3_pressed();
-
 			}
 			break;
 		}
 		//no error, prepare for changing to S1
-		SEG_counter = red_time;
+		SEG_counter = green_time;
+		UART_Parse();
 		setTimer4(1000);// Init the counter
 		setTimer1(green_time);
 		setTimer2(red_time);
@@ -49,18 +53,27 @@ void fsm_automatic_run()
 	case S1:
 		green1_on();
 		red2_on();
+		//uart count down
+		if(timer3_flag == 1){
+			SEG_counter--;
+			UART_Parse();
+			setTimer3(1000);
+		}
 
 		//road1 timeout -> turn to state S2
 		if(timer1_flag == 1){
 			setTimer1(yellow_time);
 			state = S2;
+			SEG_counter = yellow_time;
+			//UART_Parse();
 		}
 
 		//Mode_button is pressed -> turn to manual: RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
-			red1_on();
-			red2_on();
+			//display temp time
+			SEG_counter = temp_red_time;
+			UART_Parse();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -70,18 +83,28 @@ void fsm_automatic_run()
 		yellow1_on();
 		red2_on();
 
+		//uart count down
+		if(timer3_flag == 1){
+			SEG_counter--;
+			UART_Parse();
+			setTimer3(1000);
+		}
+
 		//road1 timeout -> turn to state S3
 		if(timer1_flag == 1){
 			setTimer1(red_time);
 			setTimer2(green_time);
 			state = S3;
+			SEG_counter = red_time;
 		}
+
 
 		//Mode_button is pressed -> turn to RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
-			red1_on();
-			red2_on();
+			//display temp time
+			SEG_counter = temp_red_time;
+			UART_Parse();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -90,6 +113,13 @@ void fsm_automatic_run()
 	case S3:
 		red1_on();
 		green2_on();
+
+		//uart count down
+		if(timer3_flag == 1){
+			SEG_counter--;
+			UART_Parse();
+			setTimer3(1000);
+		}
 
 		//road2 timeout -> turn to state S4
 		if(timer2_flag == 1){
@@ -100,8 +130,9 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
-			red1_on();
-			red2_on();
+			//display temp time
+			SEG_counter = temp_red_time;
+			UART_Parse();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -111,17 +142,26 @@ void fsm_automatic_run()
 		red1_on();
 		yellow2_on();
 
+		//uart count down
+		if(timer3_flag == 1){
+			SEG_counter--;
+			UART_Parse();
+			setTimer3(1000);
+		}
+
 		//road2 timeout -> turn to state S4
 		if(timer2_flag == 1){
 			setTimer1(green_time);
 			setTimer2(red_time);
 			state = S1;
+			SEG_counter = green_time;
 		}
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
-			red1_on();
-			red2_on();
+			//display temp time
+			SEG_counter = temp_red_time;
+			UART_Parse();
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
@@ -129,14 +169,5 @@ void fsm_automatic_run()
 		break;
 	default:
 		break;
-	}
-	if (timer4_flag == 1)
-	{
-		setTimer4(1000);
-		UART_Parse(SEG_counter);
-		if (SEG_counter > 0)
-			SEG_counter--;
-		else
-			SEG_counter = red_time / 1000;
 	}
 }

@@ -24,6 +24,7 @@
 #include "global.h"
 #include "fsm_auto.h"
 #include "fsm_manual.h"
+#include "software_timer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

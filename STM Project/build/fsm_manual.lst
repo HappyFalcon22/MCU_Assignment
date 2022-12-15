@@ -1,0 +1,457 @@
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"fsm_manual.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.fsm_manual_run,"ax",%progbits
+  18              		.align	1
+  19              		.global	fsm_manual_run
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	fsm_manual_run:
+  25              	.LFB65:
+  26              		.file 1 "./Core/Src/fsm_manual.c"
+   1:./Core/Src/fsm_manual.c **** /*
+   2:./Core/Src/fsm_manual.c ****  * fsm_manual.c
+   3:./Core/Src/fsm_manual.c ****  *
+   4:./Core/Src/fsm_manual.c ****  *  Created on: Nov 30, 2022
+   5:./Core/Src/fsm_manual.c ****  *      Author: Admin
+   6:./Core/Src/fsm_manual.c ****  */
+   7:./Core/Src/fsm_manual.c **** #include "fsm_manual.h"
+   8:./Core/Src/fsm_manual.c **** /*
+   9:./Core/Src/fsm_manual.c ****  * We have 3 manual state:
+  10:./Core/Src/fsm_manual.c ****  * RED_ADJUST: modify red time, blink all red led every second
+  11:./Core/Src/fsm_manual.c ****  * GREEN_ADJUST: modify green time, blink all green led every second
+  12:./Core/Src/fsm_manual.c ****  * YELLOW_ADJUST: modify yellow time, blink all yellow led every second
+  13:./Core/Src/fsm_manual.c ****  * Button1: change mode AUTO -> RED_ADJUST -> YELLOW_ADJUST -> GREEN_ADJUST
+  14:./Core/Src/fsm_manual.c ****  * Button2: change time corresponding to mode
+  15:./Core/Src/fsm_manual.c ****  * Button3: save time
+  16:./Core/Src/fsm_manual.c ****  */
+  17:./Core/Src/fsm_manual.c **** void fsm_manual_run()
+  18:./Core/Src/fsm_manual.c **** {
+  27              		.loc 1 18 1
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 7, -8
+  34              		.cfi_offset 14, -4
+  35 0002 00AF     		add	r7, sp, #0
+  36              		.cfi_def_cfa_register 7
+  19:./Core/Src/fsm_manual.c **** 	switch(state)
+  37              		.loc 1 19 2
+  38 0004 574B     		ldr	r3, .L23
+  39 0006 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 2
+
+
+  40 0008 0D2B     		cmp	r3, #13
+  41 000a 3CD0     		beq	.L2
+  42 000c 0D2B     		cmp	r3, #13
+  43 000e 00F3A080 		bgt	.L18
+  44 0012 0B2B     		cmp	r3, #11
+  45 0014 68D0     		beq	.L4
+  46 0016 0C2B     		cmp	r3, #12
+  47 0018 40F09B80 		bne	.L18
+  20:./Core/Src/fsm_manual.c **** 	{
+  21:./Core/Src/fsm_manual.c **** 	case YELLOW_ADJUST:
+  22:./Core/Src/fsm_manual.c **** 		yellow_blink();
+  48              		.loc 1 22 3
+  49 001c FFF7FEFF 		bl	yellow_blink
+  23:./Core/Src/fsm_manual.c **** 
+  24:./Core/Src/fsm_manual.c **** 		//when time_button pressed -> increase time by 1
+  25:./Core/Src/fsm_manual.c **** 		//when keep pressing -> increase 1 every 1 second
+  26:./Core/Src/fsm_manual.c **** 		//range of time is [1-30]
+  27:./Core/Src/fsm_manual.c **** 		if(is_button2_pressed() || is_button2_press1s()){
+  50              		.loc 1 27 6
+  51 0020 FFF7FEFF 		bl	is_button2_pressed
+  52 0024 0346     		mov	r3, r0
+  53              		.loc 1 27 5
+  54 0026 002B     		cmp	r3, #0
+  55 0028 04D1     		bne	.L5
+  56              		.loc 1 27 30 discriminator 1
+  57 002a FFF7FEFF 		bl	is_button2_press1s
+  58 002e 0346     		mov	r3, r0
+  59              		.loc 1 27 27 discriminator 1
+  60 0030 002B     		cmp	r3, #0
+  61 0032 0ED0     		beq	.L6
+  62              	.L5:
+  28:./Core/Src/fsm_manual.c **** 			temp_yellow_time = temp_yellow_time% 30000 + 1000;
+  63              		.loc 1 28 39
+  64 0034 4C4B     		ldr	r3, .L23+4
+  65 0036 1A68     		ldr	r2, [r3]
+  66 0038 4C4B     		ldr	r3, .L23+8
+  67 003a A3FB0213 		umull	r1, r3, r3, r2
+  68 003e 5B0B     		lsrs	r3, r3, #13
+  69 0040 47F23051 		movw	r1, #30000
+  70 0044 01FB03F3 		mul	r3, r1, r3
+  71 0048 D31A     		subs	r3, r2, r3
+  72              		.loc 1 28 47
+  73 004a 03F57A73 		add	r3, r3, #1000
+  74              		.loc 1 28 21
+  75 004e 464A     		ldr	r2, .L23+4
+  76 0050 1360     		str	r3, [r2]
+  77              	.L6:
+  29:./Core/Src/fsm_manual.c **** 		}
+  30:./Core/Src/fsm_manual.c **** 
+  31:./Core/Src/fsm_manual.c **** 		//set_button is pressed -> save temp value
+  32:./Core/Src/fsm_manual.c **** 		if(is_button3_pressed()){
+  78              		.loc 1 32 6
+  79 0052 FFF7FEFF 		bl	is_button3_pressed
+  80 0056 0346     		mov	r3, r0
+  81              		.loc 1 32 5
+  82 0058 002B     		cmp	r3, #0
+  83 005a 03D0     		beq	.L7
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 3
+
+
+  33:./Core/Src/fsm_manual.c **** 			yellow_time = temp_yellow_time;
+  84              		.loc 1 33 16
+  85 005c 424B     		ldr	r3, .L23+4
+  86 005e 1B68     		ldr	r3, [r3]
+  87 0060 434A     		ldr	r2, .L23+12
+  88 0062 1360     		str	r3, [r2]
+  89              	.L7:
+  34:./Core/Src/fsm_manual.c **** 		}
+  35:./Core/Src/fsm_manual.c **** 
+  36:./Core/Src/fsm_manual.c **** 		//Mode_button is pressed -> turn to GREEN_ADJUST
+  37:./Core/Src/fsm_manual.c **** 		if(is_button1_pressed()){
+  90              		.loc 1 37 6
+  91 0064 FFF7FEFF 		bl	is_button1_pressed
+  92 0068 0346     		mov	r3, r0
+  93              		.loc 1 37 5
+  94 006a 002B     		cmp	r3, #0
+  95 006c 73D0     		beq	.L19
+  38:./Core/Src/fsm_manual.c **** 			state = GREEN_ADJUST;
+  96              		.loc 1 38 10
+  97 006e 3D4B     		ldr	r3, .L23
+  98 0070 0D22     		movs	r2, #13
+  99 0072 1A70     		strb	r2, [r3]
+  39:./Core/Src/fsm_manual.c **** 			green1_on();
+ 100              		.loc 1 39 4
+ 101 0074 FFF7FEFF 		bl	green1_on
+  40:./Core/Src/fsm_manual.c **** 			green2_on();
+ 102              		.loc 1 40 4
+ 103 0078 FFF7FEFF 		bl	green2_on
+  41:./Core/Src/fsm_manual.c **** 			//reset all button flag
+  42:./Core/Src/fsm_manual.c **** 			is_button2_pressed();
+ 104              		.loc 1 42 4
+ 105 007c FFF7FEFF 		bl	is_button2_pressed
+  43:./Core/Src/fsm_manual.c **** 			is_button3_pressed();
+ 106              		.loc 1 43 4
+ 107 0080 FFF7FEFF 		bl	is_button3_pressed
+  44:./Core/Src/fsm_manual.c **** 		}
+  45:./Core/Src/fsm_manual.c **** 		break;
+ 108              		.loc 1 45 3
+ 109 0084 67E0     		b	.L19
+ 110              	.L2:
+  46:./Core/Src/fsm_manual.c **** 	case GREEN_ADJUST:
+  47:./Core/Src/fsm_manual.c **** 		green_blink();
+ 111              		.loc 1 47 3
+ 112 0086 FFF7FEFF 		bl	green_blink
+  48:./Core/Src/fsm_manual.c **** 
+  49:./Core/Src/fsm_manual.c **** 		//when time_button pressed -> increase time by 1
+  50:./Core/Src/fsm_manual.c **** 		//when keep pressing -> increase 1 every 1 second
+  51:./Core/Src/fsm_manual.c **** 		//range of time is [1-30]
+  52:./Core/Src/fsm_manual.c **** 		if(is_button2_pressed() || is_button2_press1s()){
+ 113              		.loc 1 52 6
+ 114 008a FFF7FEFF 		bl	is_button2_pressed
+ 115 008e 0346     		mov	r3, r0
+ 116              		.loc 1 52 5
+ 117 0090 002B     		cmp	r3, #0
+ 118 0092 04D1     		bne	.L10
+ 119              		.loc 1 52 30 discriminator 1
+ 120 0094 FFF7FEFF 		bl	is_button2_press1s
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 4
+
+
+ 121 0098 0346     		mov	r3, r0
+ 122              		.loc 1 52 27 discriminator 1
+ 123 009a 002B     		cmp	r3, #0
+ 124 009c 0ED0     		beq	.L11
+ 125              	.L10:
+  53:./Core/Src/fsm_manual.c **** 			temp_green_time = temp_green_time% 30000 + 1000;
+ 126              		.loc 1 53 37
+ 127 009e 354B     		ldr	r3, .L23+16
+ 128 00a0 1A68     		ldr	r2, [r3]
+ 129 00a2 324B     		ldr	r3, .L23+8
+ 130 00a4 A3FB0213 		umull	r1, r3, r3, r2
+ 131 00a8 5B0B     		lsrs	r3, r3, #13
+ 132 00aa 47F23051 		movw	r1, #30000
+ 133 00ae 01FB03F3 		mul	r3, r1, r3
+ 134 00b2 D31A     		subs	r3, r2, r3
+ 135              		.loc 1 53 45
+ 136 00b4 03F57A73 		add	r3, r3, #1000
+ 137              		.loc 1 53 20
+ 138 00b8 2E4A     		ldr	r2, .L23+16
+ 139 00ba 1360     		str	r3, [r2]
+ 140              	.L11:
+  54:./Core/Src/fsm_manual.c **** 		}
+  55:./Core/Src/fsm_manual.c **** 
+  56:./Core/Src/fsm_manual.c **** 		//set_button is pressed -> save temp value
+  57:./Core/Src/fsm_manual.c **** 		if(is_button3_pressed()){
+ 141              		.loc 1 57 6
+ 142 00bc FFF7FEFF 		bl	is_button3_pressed
+ 143 00c0 0346     		mov	r3, r0
+ 144              		.loc 1 57 5
+ 145 00c2 002B     		cmp	r3, #0
+ 146 00c4 03D0     		beq	.L12
+  58:./Core/Src/fsm_manual.c **** 			green_time = temp_green_time;
+ 147              		.loc 1 58 15
+ 148 00c6 2B4B     		ldr	r3, .L23+16
+ 149 00c8 1B68     		ldr	r3, [r3]
+ 150 00ca 2B4A     		ldr	r2, .L23+20
+ 151 00cc 1360     		str	r3, [r2]
+ 152              	.L12:
+  59:./Core/Src/fsm_manual.c **** 		}
+  60:./Core/Src/fsm_manual.c **** 
+  61:./Core/Src/fsm_manual.c **** 		//Mode_button is pressed -> turn to INIT
+  62:./Core/Src/fsm_manual.c **** 		if(is_button1_pressed()){
+ 153              		.loc 1 62 6
+ 154 00ce FFF7FEFF 		bl	is_button1_pressed
+ 155 00d2 0346     		mov	r3, r0
+ 156              		.loc 1 62 5
+ 157 00d4 002B     		cmp	r3, #0
+ 158 00d6 40D0     		beq	.L20
+  63:./Core/Src/fsm_manual.c **** 			state = INIT;
+ 159              		.loc 1 63 10
+ 160 00d8 224B     		ldr	r3, .L23
+ 161 00da 0022     		movs	r2, #0
+ 162 00dc 1A70     		strb	r2, [r3]
+  64:./Core/Src/fsm_manual.c **** 			//reset all button flag
+  65:./Core/Src/fsm_manual.c **** 			is_button2_pressed();
+ 163              		.loc 1 65 4
+ 164 00de FFF7FEFF 		bl	is_button2_pressed
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 5
+
+
+  66:./Core/Src/fsm_manual.c **** 			is_button3_pressed();
+ 165              		.loc 1 66 4
+ 166 00e2 FFF7FEFF 		bl	is_button3_pressed
+  67:./Core/Src/fsm_manual.c **** 		}
+  68:./Core/Src/fsm_manual.c **** 		break;
+ 167              		.loc 1 68 3
+ 168 00e6 38E0     		b	.L20
+ 169              	.L4:
+  69:./Core/Src/fsm_manual.c **** 	case RED_ADJUST:
+  70:./Core/Src/fsm_manual.c **** 		red_blink();
+ 170              		.loc 1 70 3
+ 171 00e8 FFF7FEFF 		bl	red_blink
+  71:./Core/Src/fsm_manual.c **** 
+  72:./Core/Src/fsm_manual.c **** 		//when time_button pressed -> increase time by 1
+  73:./Core/Src/fsm_manual.c **** 		//when keep pressing -> increase 1 every 1 second
+  74:./Core/Src/fsm_manual.c **** 		//range of time is [1-30]
+  75:./Core/Src/fsm_manual.c **** 		if(is_button2_pressed() || is_button2_press1s()){
+ 172              		.loc 1 75 6
+ 173 00ec FFF7FEFF 		bl	is_button2_pressed
+ 174 00f0 0346     		mov	r3, r0
+ 175              		.loc 1 75 5
+ 176 00f2 002B     		cmp	r3, #0
+ 177 00f4 04D1     		bne	.L14
+ 178              		.loc 1 75 30 discriminator 1
+ 179 00f6 FFF7FEFF 		bl	is_button2_press1s
+ 180 00fa 0346     		mov	r3, r0
+ 181              		.loc 1 75 27 discriminator 1
+ 182 00fc 002B     		cmp	r3, #0
+ 183 00fe 0ED0     		beq	.L15
+ 184              	.L14:
+  76:./Core/Src/fsm_manual.c **** 			temp_red_time = temp_red_time% 30000 + 1000;
+ 185              		.loc 1 76 33
+ 186 0100 1E4B     		ldr	r3, .L23+24
+ 187 0102 1A68     		ldr	r2, [r3]
+ 188 0104 194B     		ldr	r3, .L23+8
+ 189 0106 A3FB0213 		umull	r1, r3, r3, r2
+ 190 010a 5B0B     		lsrs	r3, r3, #13
+ 191 010c 47F23051 		movw	r1, #30000
+ 192 0110 01FB03F3 		mul	r3, r1, r3
+ 193 0114 D31A     		subs	r3, r2, r3
+ 194              		.loc 1 76 41
+ 195 0116 03F57A73 		add	r3, r3, #1000
+ 196              		.loc 1 76 18
+ 197 011a 184A     		ldr	r2, .L23+24
+ 198 011c 1360     		str	r3, [r2]
+ 199              	.L15:
+  77:./Core/Src/fsm_manual.c **** 		}
+  78:./Core/Src/fsm_manual.c **** 		//set_button is pressed -> save temp value
+  79:./Core/Src/fsm_manual.c **** 		if(is_button3_pressed()){
+ 200              		.loc 1 79 6
+ 201 011e FFF7FEFF 		bl	is_button3_pressed
+ 202 0122 0346     		mov	r3, r0
+ 203              		.loc 1 79 5
+ 204 0124 002B     		cmp	r3, #0
+ 205 0126 03D0     		beq	.L16
+  80:./Core/Src/fsm_manual.c **** 			red_time = temp_red_time;
+ 206              		.loc 1 80 13
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 6
+
+
+ 207 0128 144B     		ldr	r3, .L23+24
+ 208 012a 1B68     		ldr	r3, [r3]
+ 209 012c 144A     		ldr	r2, .L23+28
+ 210 012e 1360     		str	r3, [r2]
+ 211              	.L16:
+  81:./Core/Src/fsm_manual.c **** 		}
+  82:./Core/Src/fsm_manual.c **** 
+  83:./Core/Src/fsm_manual.c **** 		//Mode_button is pressed -> turn to YELLOW_ADJUST
+  84:./Core/Src/fsm_manual.c **** 		if(is_button1_pressed()){
+ 212              		.loc 1 84 6
+ 213 0130 FFF7FEFF 		bl	is_button1_pressed
+ 214 0134 0346     		mov	r3, r0
+ 215              		.loc 1 84 5
+ 216 0136 002B     		cmp	r3, #0
+ 217 0138 11D0     		beq	.L21
+  85:./Core/Src/fsm_manual.c **** 			state = YELLOW_ADJUST;
+ 218              		.loc 1 85 10
+ 219 013a 0A4B     		ldr	r3, .L23
+ 220 013c 0C22     		movs	r2, #12
+ 221 013e 1A70     		strb	r2, [r3]
+  86:./Core/Src/fsm_manual.c **** 			yellow1_on();
+ 222              		.loc 1 86 4
+ 223 0140 FFF7FEFF 		bl	yellow1_on
+  87:./Core/Src/fsm_manual.c **** 			yellow2_on();
+ 224              		.loc 1 87 4
+ 225 0144 FFF7FEFF 		bl	yellow2_on
+  88:./Core/Src/fsm_manual.c **** 			//reset all button flag
+  89:./Core/Src/fsm_manual.c **** 			is_button2_pressed();
+ 226              		.loc 1 89 4
+ 227 0148 FFF7FEFF 		bl	is_button2_pressed
+  90:./Core/Src/fsm_manual.c **** 			is_button3_pressed();
+ 228              		.loc 1 90 4
+ 229 014c FFF7FEFF 		bl	is_button3_pressed
+  91:./Core/Src/fsm_manual.c **** 		}
+  92:./Core/Src/fsm_manual.c **** 		break;
+ 230              		.loc 1 92 3
+ 231 0150 05E0     		b	.L21
+ 232              	.L18:
+  93:./Core/Src/fsm_manual.c **** 	default:
+  94:./Core/Src/fsm_manual.c **** 		break;
+ 233              		.loc 1 94 3
+ 234 0152 00BF     		nop
+ 235 0154 04E0     		b	.L22
+ 236              	.L19:
+  45:./Core/Src/fsm_manual.c **** 	case GREEN_ADJUST:
+ 237              		.loc 1 45 3
+ 238 0156 00BF     		nop
+ 239 0158 02E0     		b	.L22
+ 240              	.L20:
+  68:./Core/Src/fsm_manual.c **** 	case RED_ADJUST:
+ 241              		.loc 1 68 3
+ 242 015a 00BF     		nop
+ 243 015c 00E0     		b	.L22
+ 244              	.L21:
+  92:./Core/Src/fsm_manual.c **** 	default:
+ 245              		.loc 1 92 3
+ 246 015e 00BF     		nop
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 7
+
+
+ 247              	.L22:
+  95:./Core/Src/fsm_manual.c **** 	}
+  96:./Core/Src/fsm_manual.c **** }
+ 248              		.loc 1 96 1
+ 249 0160 00BF     		nop
+ 250 0162 80BD     		pop	{r7, pc}
+ 251              	.L24:
+ 252              		.align	2
+ 253              	.L23:
+ 254 0164 00000000 		.word	state
+ 255 0168 00000000 		.word	temp_yellow_time
+ 256 016c 73B2E745 		.word	1172812403
+ 257 0170 00000000 		.word	yellow_time
+ 258 0174 00000000 		.word	temp_green_time
+ 259 0178 00000000 		.word	green_time
+ 260 017c 00000000 		.word	temp_red_time
+ 261 0180 00000000 		.word	red_time
+ 262              		.cfi_endproc
+ 263              	.LFE65:
+ 265              		.text
+ 266              	.Letext0:
+ 267              		.file 2 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 268              		.file 3 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 269              		.file 4 "Core/Inc/global.h"
+ 270              		.file 5 "Core/Inc/task.h"
+ 271              		.file 6 "Core/Inc/button.h"
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 8
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 fsm_manual.c
+C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s:18     .text.fsm_manual_run:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s:24     .text.fsm_manual_run:0000000000000000 fsm_manual_run
+C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s:254    .text.fsm_manual_run:0000000000000164 $d
+                           .group:0000000000000000 wm4.0.cb5f01749778df26340c4505df3d34d0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.22.844a2f06328adeab13e6d7f89c6deb9b
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.208bb8a61c892b7c37d899c49a031330
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4._newlib_version.h.4.bfdf54b0af045d4a71376ae00f63a22c
+                           .group:0000000000000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.cmsis_version.h.32.4d5822004c01a829a975260e854b5f8e
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.4f5798e999d5690b80e6ded3ecc94b37
+                           .group:0000000000000000 wm4.core_cm3.h.127.f4474120f1a7524deb56f9d74ff175da
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.23.91ba5b544a4c2be2620a1e7ff0049e10
+                           .group:0000000000000000 wm4.stddef.h.39.144cf5ddcd53cbfdac30259dc1a6c87f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.57.18d01ce1aa74e9fb44dbf16f821a574a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.95.21591bbc513aaa813c0b8640c3b32517
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.22.8763f99bc1e3e2dcf0febe9161d81b37
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1202.f8e5f9e0cf4eef7840facf5396029056
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.22.fa638d688dcc57ca806fe6a7831b0d04
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.22.51a50ef3512cd78017ce666a32d364bf
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.263.f5ebf2f545ade59412ab9261c8e35dc4
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.22.e26491d042c8079c3ca67eca341af862
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.22.3c14338534886827bf3aeaa2a7f412a1
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.22.001ac4d7f81ccbdcae49bd65c13858c8
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.409.cafcd2cfe701091535636be537c18293
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.22.b5f4174bb6a50d95405567b8f50e0900
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.22.5cea9a7210e6315b41724b47b5fdf203
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.22.d4e19c21f2a86fa2f8ec2c2d5f1ab2af
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.22.3438c476faafc3240bf146f143df3fcd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.22.a16e206564e97dbace9faae59a0d6008
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.22.5f7992e497faa36aa98f09f7214f4dbb
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.88.91065c0692bed6019c34f1e9c00589fd
+                           .group:0000000000000000 wm4.main.h.62.d895ccf9707ed1f9c21d5d1ab82a4f23
+
+UNDEFINED SYMBOLS
+yellow_blink
+is_button2_pressed
+is_button2_press1s
+is_button3_pressed
+is_button1_pressed
+green1_on
+green2_on
+green_blink
+red_blink
+yellow1_on
+yellow2_on
+state
+temp_yellow_time
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccCzbgy6.s 			page 9
+
+
+yellow_time
+temp_green_time
+green_time
+temp_red_time
+red_time

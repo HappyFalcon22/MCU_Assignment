@@ -1,5 +1,8 @@
 #include "task.h"
 #include "software_timer.h"
+#include "global.h"
+#include "string.h"
+#include "stdio.h"
 
 //toggle all led when timer flag is on
 //the set up pin is depend on real board
@@ -93,10 +96,10 @@ void turn_all_led_off()
 }
 
 // Add task for UART
-void UART_Parse(uint32_t time)
+void UART_Parse()
 {
 	char str[15];
-	sprintf(str, "!7SEG:%d#\r\n", time);
-	HAL_UART_Transmit(&huart2, str, sizeof(str), 1000);
+	sprintf(str, "!7SEG:%lu#\r\n", SEG_counter/1000);
+	HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), 10000);
 }
 

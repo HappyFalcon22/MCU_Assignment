@@ -1,0 +1,823 @@
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.arch armv7-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 6
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.file	"button.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.bss.buttonBuffer,"aw",%nobits
+  18              		.align	2
+  21              	buttonBuffer:
+  22 0000 00000000 		.space	4
+  23              		.section	.bss.debounceButtonBuffer0,"aw",%nobits
+  24              		.align	2
+  27              	debounceButtonBuffer0:
+  28 0000 00000000 		.space	4
+  29              		.section	.bss.debounceButtonBuffer1,"aw",%nobits
+  30              		.align	2
+  33              	debounceButtonBuffer1:
+  34 0000 00000000 		.space	4
+  35              		.section	.bss.debounceButtonBuffer2,"aw",%nobits
+  36              		.align	2
+  39              	debounceButtonBuffer2:
+  40 0000 00000000 		.space	4
+  41              		.section	.bss.flagForButtonPress1s,"aw",%nobits
+  42              		.align	2
+  45              	flagForButtonPress1s:
+  46 0000 00000000 		.space	4
+  47              		.section	.bss.flagForButtonPress,"aw",%nobits
+  48              		.align	2
+  51              	flagForButtonPress:
+  52 0000 00000000 		.space	4
+  53              		.section	.bss.counterForButtonPress1s,"aw",%nobits
+  54              		.align	2
+  57              	counterForButtonPress1s:
+  58 0000 00000000 		.space	8
+  58      00000000 
+  59              		.section	.text.button_reading,"ax",%progbits
+  60              		.align	1
+  61              		.global	button_reading
+  62              		.syntax unified
+  63              		.thumb
+  64              		.thumb_func
+  66              	button_reading:
+  67              	.LFB65:
+  68              		.file 1 "./Core/Src/button.c"
+   1:./Core/Src/button.c **** /*
+   2:./Core/Src/button.c ****  * button.c
+   3:./Core/Src/button.c ****  *
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 2
+
+
+   4:./Core/Src/button.c ****  *  Created on: Nov 30, 2022
+   5:./Core/Src/button.c ****  *      Author: Admin
+   6:./Core/Src/button.c ****  */
+   7:./Core/Src/button.c **** #include "button.h"
+   8:./Core/Src/button.c **** //#include "input_reading.h"
+   9:./Core/Src/button.c **** 
+  10:./Core/Src/button.c **** //number of button we have
+  11:./Core/Src/button.c **** #define N0_OF_BUTTONS 				       4
+  12:./Core/Src/button.c **** //timer interrupt duration is 10ms, so to pass 1 second,
+  13:./Core/Src/button.c **** //we need to jump to the interrupt service routine 100 time
+  14:./Core/Src/button.c **** #define DURATION_FOR_PRESSED	   		   100
+  15:./Core/Src/button.c **** #define BUTTON_IS_PRESSED                  GPIO_PIN_RESET
+  16:./Core/Src/button.c **** #define BUTTON_IS_RELEASED                 GPIO_PIN_SET
+  17:./Core/Src/button.c **** 
+  18:./Core/Src/button.c **** //the buffer that the final result is stored after debouncing
+  19:./Core/Src/button.c **** static GPIO_PinState buttonBuffer[N0_OF_BUTTONS];
+  20:./Core/Src/button.c **** 
+  21:./Core/Src/button.c **** //we define three buffers for debouncing
+  22:./Core/Src/button.c **** static GPIO_PinState debounceButtonBuffer0[N0_OF_BUTTONS];
+  23:./Core/Src/button.c **** static GPIO_PinState debounceButtonBuffer1[N0_OF_BUTTONS];
+  24:./Core/Src/button.c **** static GPIO_PinState debounceButtonBuffer2[N0_OF_BUTTONS];
+  25:./Core/Src/button.c **** 
+  26:./Core/Src/button.c **** //we define flags for button pressed
+  27:./Core/Src/button.c **** static uint8_t flagForButtonPress1s[N0_OF_BUTTONS] = {0};
+  28:./Core/Src/button.c **** static uint8_t flagForButtonPress[N0_OF_BUTTONS] = {0};
+  29:./Core/Src/button.c **** 
+  30:./Core/Src/button.c **** //we define counter for the button is pressed more than 1 second.
+  31:./Core/Src/button.c **** static uint16_t counterForButtonPress1s[N0_OF_BUTTONS];
+  32:./Core/Src/button.c **** 
+  33:./Core/Src/button.c **** //read 3 button and modify flag buffer when button is pressed
+  34:./Core/Src/button.c **** //this function is called in timer interupt
+  35:./Core/Src/button.c **** void button_reading(){
+  69              		.loc 1 35 22
+  70              		.cfi_startproc
+  71              		@ args = 0, pretend = 0, frame = 8
+  72              		@ frame_needed = 1, uses_anonymous_args = 0
+  73 0000 80B5     		push	{r7, lr}
+  74              		.cfi_def_cfa_offset 8
+  75              		.cfi_offset 7, -8
+  76              		.cfi_offset 14, -4
+  77 0002 82B0     		sub	sp, sp, #8
+  78              		.cfi_def_cfa_offset 16
+  79 0004 00AF     		add	r7, sp, #0
+  80              		.cfi_def_cfa_register 7
+  81              	.LBB2:
+  36:./Core/Src/button.c **** 	for(int i = 0; i < N0_OF_BUTTONS; i ++){
+  82              		.loc 1 36 10
+  83 0006 0023     		movs	r3, #0
+  84 0008 7B60     		str	r3, [r7, #4]
+  85              		.loc 1 36 2
+  86 000a A7E0     		b	.L2
+  87              	.L10:
+  37:./Core/Src/button.c **** 		debounceButtonBuffer2[i] = debounceButtonBuffer1[i];
+  88              		.loc 1 37 51
+  89 000c 584A     		ldr	r2, .L11
+  90 000e 7B68     		ldr	r3, [r7, #4]
+  91 0010 1344     		add	r3, r3, r2
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 3
+
+
+  92 0012 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+  93              		.loc 1 37 28
+  94 0014 574A     		ldr	r2, .L11+4
+  95 0016 7B68     		ldr	r3, [r7, #4]
+  96 0018 1344     		add	r3, r3, r2
+  97 001a 0A46     		mov	r2, r1
+  98 001c 1A70     		strb	r2, [r3]
+  38:./Core/Src/button.c **** 		debounceButtonBuffer1[i] = debounceButtonBuffer0[i];
+  99              		.loc 1 38 51
+ 100 001e 564A     		ldr	r2, .L11+8
+ 101 0020 7B68     		ldr	r3, [r7, #4]
+ 102 0022 1344     		add	r3, r3, r2
+ 103 0024 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 104              		.loc 1 38 28
+ 105 0026 524A     		ldr	r2, .L11
+ 106 0028 7B68     		ldr	r3, [r7, #4]
+ 107 002a 1344     		add	r3, r3, r2
+ 108 002c 0A46     		mov	r2, r1
+ 109 002e 1A70     		strb	r2, [r3]
+  39:./Core/Src/button.c **** 		//read raw button to buffer0
+  40:./Core/Src/button.c **** 		if(i == 0){
+ 110              		.loc 1 40 5
+ 111 0030 7B68     		ldr	r3, [r7, #4]
+ 112 0032 002B     		cmp	r3, #0
+ 113 0034 0BD1     		bne	.L3
+  41:./Core/Src/button.c **** 			debounceButtonBuffer0[i] = HAL_GPIO_ReadPin(BUTTON1_GPIO_Port, BUTTON1_Pin);
+ 114              		.loc 1 41 31
+ 115 0036 0221     		movs	r1, #2
+ 116 0038 5048     		ldr	r0, .L11+12
+ 117 003a FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 118 003e 0346     		mov	r3, r0
+ 119 0040 1946     		mov	r1, r3
+ 120              		.loc 1 41 29
+ 121 0042 4D4A     		ldr	r2, .L11+8
+ 122 0044 7B68     		ldr	r3, [r7, #4]
+ 123 0046 1344     		add	r3, r3, r2
+ 124 0048 0A46     		mov	r2, r1
+ 125 004a 1A70     		strb	r2, [r3]
+ 126 004c 2BE0     		b	.L4
+ 127              	.L3:
+  42:./Core/Src/button.c **** 		}
+  43:./Core/Src/button.c **** 		else if(i == 1){
+ 128              		.loc 1 43 10
+ 129 004e 7B68     		ldr	r3, [r7, #4]
+ 130 0050 012B     		cmp	r3, #1
+ 131 0052 0BD1     		bne	.L5
+  44:./Core/Src/button.c **** 			debounceButtonBuffer0[i] = HAL_GPIO_ReadPin(BUTTON2_GPIO_Port, BUTTON2_Pin);
+ 132              		.loc 1 44 31
+ 133 0054 1021     		movs	r1, #16
+ 134 0056 4948     		ldr	r0, .L11+12
+ 135 0058 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 136 005c 0346     		mov	r3, r0
+ 137 005e 1946     		mov	r1, r3
+ 138              		.loc 1 44 29
+ 139 0060 454A     		ldr	r2, .L11+8
+ 140 0062 7B68     		ldr	r3, [r7, #4]
+ 141 0064 1344     		add	r3, r3, r2
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 4
+
+
+ 142 0066 0A46     		mov	r2, r1
+ 143 0068 1A70     		strb	r2, [r3]
+ 144 006a 1CE0     		b	.L4
+ 145              	.L5:
+  45:./Core/Src/button.c **** 		}
+  46:./Core/Src/button.c **** 		else if(i == 2){
+ 146              		.loc 1 46 10
+ 147 006c 7B68     		ldr	r3, [r7, #4]
+ 148 006e 022B     		cmp	r3, #2
+ 149 0070 0BD1     		bne	.L6
+  47:./Core/Src/button.c **** 			debounceButtonBuffer0[i] = HAL_GPIO_ReadPin(BUTTON3_GPIO_Port, BUTTON3_Pin);
+ 150              		.loc 1 47 31
+ 151 0072 0121     		movs	r1, #1
+ 152 0074 4248     		ldr	r0, .L11+16
+ 153 0076 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 154 007a 0346     		mov	r3, r0
+ 155 007c 1946     		mov	r1, r3
+ 156              		.loc 1 47 29
+ 157 007e 3E4A     		ldr	r2, .L11+8
+ 158 0080 7B68     		ldr	r3, [r7, #4]
+ 159 0082 1344     		add	r3, r3, r2
+ 160 0084 0A46     		mov	r2, r1
+ 161 0086 1A70     		strb	r2, [r3]
+ 162 0088 0DE0     		b	.L4
+ 163              	.L6:
+  48:./Core/Src/button.c **** 		}
+  49:./Core/Src/button.c **** 		else if(i == 3){
+ 164              		.loc 1 49 10
+ 165 008a 7B68     		ldr	r3, [r7, #4]
+ 166 008c 032B     		cmp	r3, #3
+ 167 008e 0AD1     		bne	.L4
+  50:./Core/Src/button.c **** 			debounceButtonBuffer0[i] = HAL_GPIO_ReadPin(PEDE_BUTTON_GPIO_Port, PEDE_BUTTON_Pin);
+ 168              		.loc 1 50 31
+ 169 0090 0121     		movs	r1, #1
+ 170 0092 3A48     		ldr	r0, .L11+12
+ 171 0094 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 172 0098 0346     		mov	r3, r0
+ 173 009a 1946     		mov	r1, r3
+ 174              		.loc 1 50 29
+ 175 009c 364A     		ldr	r2, .L11+8
+ 176 009e 7B68     		ldr	r3, [r7, #4]
+ 177 00a0 1344     		add	r3, r3, r2
+ 178 00a2 0A46     		mov	r2, r1
+ 179 00a4 1A70     		strb	r2, [r3]
+ 180              	.L4:
+  51:./Core/Src/button.c **** 		}
+  52:./Core/Src/button.c **** 		//if input is stable: 3 recently input is equal
+  53:./Core/Src/button.c **** 		if(debounceButtonBuffer0[i] == debounceButtonBuffer1[i] &&
+ 181              		.loc 1 53 27
+ 182 00a6 344A     		ldr	r2, .L11+8
+ 183 00a8 7B68     		ldr	r3, [r7, #4]
+ 184 00aa 1344     		add	r3, r3, r2
+ 185 00ac 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 186              		.loc 1 53 55
+ 187 00ae 3049     		ldr	r1, .L11
+ 188 00b0 7B68     		ldr	r3, [r7, #4]
+ 189 00b2 0B44     		add	r3, r3, r1
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 5
+
+
+ 190 00b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 191              		.loc 1 53 5
+ 192 00b6 9A42     		cmp	r2, r3
+ 193 00b8 4DD1     		bne	.L7
+  54:./Core/Src/button.c **** 				debounceButtonBuffer1[i] == debounceButtonBuffer2[i]){
+ 194              		.loc 1 54 26 discriminator 1
+ 195 00ba 2D4A     		ldr	r2, .L11
+ 196 00bc 7B68     		ldr	r3, [r7, #4]
+ 197 00be 1344     		add	r3, r3, r2
+ 198 00c0 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 199              		.loc 1 54 54 discriminator 1
+ 200 00c2 2C49     		ldr	r1, .L11+4
+ 201 00c4 7B68     		ldr	r3, [r7, #4]
+ 202 00c6 0B44     		add	r3, r3, r1
+ 203 00c8 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  53:./Core/Src/button.c **** 				debounceButtonBuffer1[i] == debounceButtonBuffer2[i]){
+ 204              		.loc 1 53 59 discriminator 1
+ 205 00ca 9A42     		cmp	r2, r3
+ 206 00cc 43D1     		bne	.L7
+  55:./Core/Src/button.c **** 			//if input stable at present different from previous
+  56:./Core/Src/button.c **** 			if(buttonBuffer[i] != debounceButtonBuffer2[i]){
+ 207              		.loc 1 56 19
+ 208 00ce 2D4A     		ldr	r2, .L11+20
+ 209 00d0 7B68     		ldr	r3, [r7, #4]
+ 210 00d2 1344     		add	r3, r3, r2
+ 211 00d4 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 212              		.loc 1 56 47
+ 213 00d6 2749     		ldr	r1, .L11+4
+ 214 00d8 7B68     		ldr	r3, [r7, #4]
+ 215 00da 0B44     		add	r3, r3, r1
+ 216 00dc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 217              		.loc 1 56 6
+ 218 00de 9A42     		cmp	r2, r3
+ 219 00e0 19D0     		beq	.L8
+  57:./Core/Src/button.c **** 				//update input to buffer
+  58:./Core/Src/button.c **** 				buttonBuffer[i] = debounceButtonBuffer2[i];
+ 220              		.loc 1 58 44
+ 221 00e2 244A     		ldr	r2, .L11+4
+ 222 00e4 7B68     		ldr	r3, [r7, #4]
+ 223 00e6 1344     		add	r3, r3, r2
+ 224 00e8 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 225              		.loc 1 58 21
+ 226 00ea 264A     		ldr	r2, .L11+20
+ 227 00ec 7B68     		ldr	r3, [r7, #4]
+ 228 00ee 1344     		add	r3, r3, r2
+ 229 00f0 0A46     		mov	r2, r1
+ 230 00f2 1A70     		strb	r2, [r3]
+  59:./Core/Src/button.c **** 				//if input is pressed
+  60:./Core/Src/button.c **** 				if(buttonBuffer[i] == BUTTON_IS_PRESSED){
+ 231              		.loc 1 60 20
+ 232 00f4 234A     		ldr	r2, .L11+20
+ 233 00f6 7B68     		ldr	r3, [r7, #4]
+ 234 00f8 1344     		add	r3, r3, r2
+ 235 00fa 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 236              		.loc 1 60 7
+ 237 00fc 002B     		cmp	r3, #0
+ 238 00fe 2AD1     		bne	.L7
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 6
+
+
+  61:./Core/Src/button.c **** 					//turn flag on
+  62:./Core/Src/button.c **** 					flagForButtonPress[i] = 1;
+ 239              		.loc 1 62 28
+ 240 0100 214A     		ldr	r2, .L11+24
+ 241 0102 7B68     		ldr	r3, [r7, #4]
+ 242 0104 1344     		add	r3, r3, r2
+ 243 0106 0122     		movs	r2, #1
+ 244 0108 1A70     		strb	r2, [r3]
+  63:./Core/Src/button.c **** 					//set counter
+  64:./Core/Src/button.c **** 					counterForButtonPress1s[i] = DURATION_FOR_PRESSED;
+ 245              		.loc 1 64 33
+ 246 010a 204A     		ldr	r2, .L11+28
+ 247 010c 7B68     		ldr	r3, [r7, #4]
+ 248 010e 6421     		movs	r1, #100
+ 249 0110 22F81310 		strh	r1, [r2, r3, lsl #1]	@ movhi
+ 250 0114 1FE0     		b	.L7
+ 251              	.L8:
+  65:./Core/Src/button.c **** 				}
+  66:./Core/Src/button.c **** 			}
+  67:./Core/Src/button.c **** 			//if input is stable and no change (present = previous)
+  68:./Core/Src/button.c **** 			else{
+  69:./Core/Src/button.c **** 				//decrease counter
+  70:./Core/Src/button.c **** 				counterForButtonPress1s[i]--;
+ 252              		.loc 1 70 28
+ 253 0116 1D4A     		ldr	r2, .L11+28
+ 254 0118 7B68     		ldr	r3, [r7, #4]
+ 255 011a 32F81330 		ldrh	r3, [r2, r3, lsl #1]
+ 256              		.loc 1 70 31
+ 257 011e 013B     		subs	r3, r3, #1
+ 258 0120 99B2     		uxth	r1, r3
+ 259 0122 1A4A     		ldr	r2, .L11+28
+ 260 0124 7B68     		ldr	r3, [r7, #4]
+ 261 0126 22F81310 		strh	r1, [r2, r3, lsl #1]	@ movhi
+  71:./Core/Src/button.c **** 				//when counter is 0, reset counter
+  72:./Core/Src/button.c **** 				//and if button is press -> turn flag1s on
+  73:./Core/Src/button.c **** 				if(counterForButtonPress1s[i] == 0){
+ 262              		.loc 1 73 31
+ 263 012a 184A     		ldr	r2, .L11+28
+ 264 012c 7B68     		ldr	r3, [r7, #4]
+ 265 012e 32F81330 		ldrh	r3, [r2, r3, lsl #1]
+ 266              		.loc 1 73 7
+ 267 0132 002B     		cmp	r3, #0
+ 268 0134 0FD1     		bne	.L7
+  74:./Core/Src/button.c **** 					if(buttonBuffer[i] == BUTTON_IS_PRESSED){
+ 269              		.loc 1 74 21
+ 270 0136 134A     		ldr	r2, .L11+20
+ 271 0138 7B68     		ldr	r3, [r7, #4]
+ 272 013a 1344     		add	r3, r3, r2
+ 273 013c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 274              		.loc 1 74 8
+ 275 013e 002B     		cmp	r3, #0
+ 276 0140 04D1     		bne	.L9
+  75:./Core/Src/button.c **** 						flagForButtonPress1s[i] = 1;
+ 277              		.loc 1 75 31
+ 278 0142 134A     		ldr	r2, .L11+32
+ 279 0144 7B68     		ldr	r3, [r7, #4]
+ 280 0146 1344     		add	r3, r3, r2
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 7
+
+
+ 281 0148 0122     		movs	r2, #1
+ 282 014a 1A70     		strb	r2, [r3]
+ 283              	.L9:
+  76:./Core/Src/button.c **** 					}
+  77:./Core/Src/button.c **** 					counterForButtonPress1s[i] = DURATION_FOR_PRESSED;
+ 284              		.loc 1 77 33
+ 285 014c 0F4A     		ldr	r2, .L11+28
+ 286 014e 7B68     		ldr	r3, [r7, #4]
+ 287 0150 6421     		movs	r1, #100
+ 288 0152 22F81310 		strh	r1, [r2, r3, lsl #1]	@ movhi
+ 289              	.L7:
+  36:./Core/Src/button.c **** 		debounceButtonBuffer2[i] = debounceButtonBuffer1[i];
+ 290              		.loc 1 36 38 discriminator 2
+ 291 0156 7B68     		ldr	r3, [r7, #4]
+ 292 0158 0133     		adds	r3, r3, #1
+ 293 015a 7B60     		str	r3, [r7, #4]
+ 294              	.L2:
+  36:./Core/Src/button.c **** 		debounceButtonBuffer2[i] = debounceButtonBuffer1[i];
+ 295              		.loc 1 36 2 discriminator 1
+ 296 015c 7B68     		ldr	r3, [r7, #4]
+ 297 015e 032B     		cmp	r3, #3
+ 298 0160 7FF754AF 		ble	.L10
+ 299              	.LBE2:
+  78:./Core/Src/button.c **** 				}
+  79:./Core/Src/button.c **** 			}
+  80:./Core/Src/button.c **** 		}
+  81:./Core/Src/button.c **** 	}
+  82:./Core/Src/button.c **** }
+ 300              		.loc 1 82 1
+ 301 0164 00BF     		nop
+ 302 0166 00BF     		nop
+ 303 0168 0837     		adds	r7, r7, #8
+ 304              		.cfi_def_cfa_offset 8
+ 305 016a BD46     		mov	sp, r7
+ 306              		.cfi_def_cfa_register 13
+ 307              		@ sp needed
+ 308 016c 80BD     		pop	{r7, pc}
+ 309              	.L12:
+ 310 016e 00BF     		.align	2
+ 311              	.L11:
+ 312 0170 00000000 		.word	debounceButtonBuffer1
+ 313 0174 00000000 		.word	debounceButtonBuffer2
+ 314 0178 00000000 		.word	debounceButtonBuffer0
+ 315 017c 00080140 		.word	1073809408
+ 316 0180 000C0140 		.word	1073810432
+ 317 0184 00000000 		.word	buttonBuffer
+ 318 0188 00000000 		.word	flagForButtonPress
+ 319 018c 00000000 		.word	counterForButtonPress1s
+ 320 0190 00000000 		.word	flagForButtonPress1s
+ 321              		.cfi_endproc
+ 322              	.LFE65:
+ 324              		.section	.text.is_button1_pressed,"ax",%progbits
+ 325              		.align	1
+ 326              		.global	is_button1_pressed
+ 327              		.syntax unified
+ 328              		.thumb
+ 329              		.thumb_func
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 8
+
+
+ 331              	is_button1_pressed:
+ 332              	.LFB66:
+  83:./Core/Src/button.c **** 
+  84:./Core/Src/button.c **** //this function check if Mode_select_button is pressed or not
+  85:./Core/Src/button.c **** //and reset its flag
+  86:./Core/Src/button.c **** int is_button1_pressed()
+  87:./Core/Src/button.c **** {
+ 333              		.loc 1 87 1
+ 334              		.cfi_startproc
+ 335              		@ args = 0, pretend = 0, frame = 0
+ 336              		@ frame_needed = 1, uses_anonymous_args = 0
+ 337              		@ link register save eliminated.
+ 338 0000 80B4     		push	{r7}
+ 339              		.cfi_def_cfa_offset 4
+ 340              		.cfi_offset 7, -4
+ 341 0002 00AF     		add	r7, sp, #0
+ 342              		.cfi_def_cfa_register 7
+  88:./Core/Src/button.c **** 	if(flagForButtonPress[0] == 1){
+ 343              		.loc 1 88 23
+ 344 0004 064B     		ldr	r3, .L16
+ 345 0006 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 346              		.loc 1 88 4
+ 347 0008 012B     		cmp	r3, #1
+ 348 000a 04D1     		bne	.L14
+  89:./Core/Src/button.c **** 		flagForButtonPress[0] = 0;
+ 349              		.loc 1 89 25
+ 350 000c 044B     		ldr	r3, .L16
+ 351 000e 0022     		movs	r2, #0
+ 352 0010 1A70     		strb	r2, [r3]
+  90:./Core/Src/button.c **** 		return 1;
+ 353              		.loc 1 90 10
+ 354 0012 0123     		movs	r3, #1
+ 355 0014 00E0     		b	.L15
+ 356              	.L14:
+  91:./Core/Src/button.c **** 	}
+  92:./Core/Src/button.c **** 	return 0;
+ 357              		.loc 1 92 9
+ 358 0016 0023     		movs	r3, #0
+ 359              	.L15:
+  93:./Core/Src/button.c **** }
+ 360              		.loc 1 93 1
+ 361 0018 1846     		mov	r0, r3
+ 362 001a BD46     		mov	sp, r7
+ 363              		.cfi_def_cfa_register 13
+ 364              		@ sp needed
+ 365 001c 80BC     		pop	{r7}
+ 366              		.cfi_restore 7
+ 367              		.cfi_def_cfa_offset 0
+ 368 001e 7047     		bx	lr
+ 369              	.L17:
+ 370              		.align	2
+ 371              	.L16:
+ 372 0020 00000000 		.word	flagForButtonPress
+ 373              		.cfi_endproc
+ 374              	.LFE66:
+ 376              		.section	.text.is_button2_pressed,"ax",%progbits
+ 377              		.align	1
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 9
+
+
+ 378              		.global	is_button2_pressed
+ 379              		.syntax unified
+ 380              		.thumb
+ 381              		.thumb_func
+ 383              	is_button2_pressed:
+ 384              	.LFB67:
+  94:./Core/Src/button.c **** 
+  95:./Core/Src/button.c **** //this fuction check if time_adjust_button is pressed or not
+  96:./Core/Src/button.c **** //and reset its flag
+  97:./Core/Src/button.c **** int is_button2_pressed()
+  98:./Core/Src/button.c **** {
+ 385              		.loc 1 98 1
+ 386              		.cfi_startproc
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 1, uses_anonymous_args = 0
+ 389              		@ link register save eliminated.
+ 390 0000 80B4     		push	{r7}
+ 391              		.cfi_def_cfa_offset 4
+ 392              		.cfi_offset 7, -4
+ 393 0002 00AF     		add	r7, sp, #0
+ 394              		.cfi_def_cfa_register 7
+  99:./Core/Src/button.c **** 	if(flagForButtonPress[1] == 1){
+ 395              		.loc 1 99 23
+ 396 0004 064B     		ldr	r3, .L21
+ 397 0006 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 398              		.loc 1 99 4
+ 399 0008 012B     		cmp	r3, #1
+ 400 000a 04D1     		bne	.L19
+ 100:./Core/Src/button.c **** 		flagForButtonPress[1] = 0;
+ 401              		.loc 1 100 25
+ 402 000c 044B     		ldr	r3, .L21
+ 403 000e 0022     		movs	r2, #0
+ 404 0010 5A70     		strb	r2, [r3, #1]
+ 101:./Core/Src/button.c **** 		return 1;
+ 405              		.loc 1 101 10
+ 406 0012 0123     		movs	r3, #1
+ 407 0014 00E0     		b	.L20
+ 408              	.L19:
+ 102:./Core/Src/button.c **** 	}
+ 103:./Core/Src/button.c **** 	return 0;
+ 409              		.loc 1 103 9
+ 410 0016 0023     		movs	r3, #0
+ 411              	.L20:
+ 104:./Core/Src/button.c **** }
+ 412              		.loc 1 104 1
+ 413 0018 1846     		mov	r0, r3
+ 414 001a BD46     		mov	sp, r7
+ 415              		.cfi_def_cfa_register 13
+ 416              		@ sp needed
+ 417 001c 80BC     		pop	{r7}
+ 418              		.cfi_restore 7
+ 419              		.cfi_def_cfa_offset 0
+ 420 001e 7047     		bx	lr
+ 421              	.L22:
+ 422              		.align	2
+ 423              	.L21:
+ 424 0020 00000000 		.word	flagForButtonPress
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 10
+
+
+ 425              		.cfi_endproc
+ 426              	.LFE67:
+ 428              		.section	.text.is_button3_pressed,"ax",%progbits
+ 429              		.align	1
+ 430              		.global	is_button3_pressed
+ 431              		.syntax unified
+ 432              		.thumb
+ 433              		.thumb_func
+ 435              	is_button3_pressed:
+ 436              	.LFB68:
+ 105:./Core/Src/button.c **** 
+ 106:./Core/Src/button.c **** //this function check if set_button is pressed or not
+ 107:./Core/Src/button.c **** //and reset its flag
+ 108:./Core/Src/button.c **** int is_button3_pressed()
+ 109:./Core/Src/button.c **** {
+ 437              		.loc 1 109 1
+ 438              		.cfi_startproc
+ 439              		@ args = 0, pretend = 0, frame = 0
+ 440              		@ frame_needed = 1, uses_anonymous_args = 0
+ 441              		@ link register save eliminated.
+ 442 0000 80B4     		push	{r7}
+ 443              		.cfi_def_cfa_offset 4
+ 444              		.cfi_offset 7, -4
+ 445 0002 00AF     		add	r7, sp, #0
+ 446              		.cfi_def_cfa_register 7
+ 110:./Core/Src/button.c **** 	if(flagForButtonPress[2] == 1){
+ 447              		.loc 1 110 23
+ 448 0004 064B     		ldr	r3, .L26
+ 449 0006 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 450              		.loc 1 110 4
+ 451 0008 012B     		cmp	r3, #1
+ 452 000a 04D1     		bne	.L24
+ 111:./Core/Src/button.c **** 		flagForButtonPress[2] = 0;
+ 453              		.loc 1 111 25
+ 454 000c 044B     		ldr	r3, .L26
+ 455 000e 0022     		movs	r2, #0
+ 456 0010 9A70     		strb	r2, [r3, #2]
+ 112:./Core/Src/button.c **** 		return 1;
+ 457              		.loc 1 112 10
+ 458 0012 0123     		movs	r3, #1
+ 459 0014 00E0     		b	.L25
+ 460              	.L24:
+ 113:./Core/Src/button.c **** 	}
+ 114:./Core/Src/button.c **** 	return 0;
+ 461              		.loc 1 114 9
+ 462 0016 0023     		movs	r3, #0
+ 463              	.L25:
+ 115:./Core/Src/button.c **** }
+ 464              		.loc 1 115 1
+ 465 0018 1846     		mov	r0, r3
+ 466 001a BD46     		mov	sp, r7
+ 467              		.cfi_def_cfa_register 13
+ 468              		@ sp needed
+ 469 001c 80BC     		pop	{r7}
+ 470              		.cfi_restore 7
+ 471              		.cfi_def_cfa_offset 0
+ 472 001e 7047     		bx	lr
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 11
+
+
+ 473              	.L27:
+ 474              		.align	2
+ 475              	.L26:
+ 476 0020 00000000 		.word	flagForButtonPress
+ 477              		.cfi_endproc
+ 478              	.LFE68:
+ 480              		.section	.text.is_pede_button_pressed,"ax",%progbits
+ 481              		.align	1
+ 482              		.global	is_pede_button_pressed
+ 483              		.syntax unified
+ 484              		.thumb
+ 485              		.thumb_func
+ 487              	is_pede_button_pressed:
+ 488              	.LFB69:
+ 116:./Core/Src/button.c **** 
+ 117:./Core/Src/button.c **** //the function check if pedestrian button is pressed or not
+ 118:./Core/Src/button.c **** //and reset its flag
+ 119:./Core/Src/button.c **** int is_pede_button_pressed()
+ 120:./Core/Src/button.c **** {
+ 489              		.loc 1 120 1
+ 490              		.cfi_startproc
+ 491              		@ args = 0, pretend = 0, frame = 0
+ 492              		@ frame_needed = 1, uses_anonymous_args = 0
+ 493              		@ link register save eliminated.
+ 494 0000 80B4     		push	{r7}
+ 495              		.cfi_def_cfa_offset 4
+ 496              		.cfi_offset 7, -4
+ 497 0002 00AF     		add	r7, sp, #0
+ 498              		.cfi_def_cfa_register 7
+ 121:./Core/Src/button.c **** 	if(flagForButtonPress[3] == 1){
+ 499              		.loc 1 121 23
+ 500 0004 064B     		ldr	r3, .L31
+ 501 0006 DB78     		ldrb	r3, [r3, #3]	@ zero_extendqisi2
+ 502              		.loc 1 121 4
+ 503 0008 012B     		cmp	r3, #1
+ 504 000a 04D1     		bne	.L29
+ 122:./Core/Src/button.c **** 		flagForButtonPress[3] = 0;
+ 505              		.loc 1 122 25
+ 506 000c 044B     		ldr	r3, .L31
+ 507 000e 0022     		movs	r2, #0
+ 508 0010 DA70     		strb	r2, [r3, #3]
+ 123:./Core/Src/button.c **** 		return 1;
+ 509              		.loc 1 123 10
+ 510 0012 0123     		movs	r3, #1
+ 511 0014 00E0     		b	.L30
+ 512              	.L29:
+ 124:./Core/Src/button.c **** 	}
+ 125:./Core/Src/button.c **** 	return 0;
+ 513              		.loc 1 125 9
+ 514 0016 0023     		movs	r3, #0
+ 515              	.L30:
+ 126:./Core/Src/button.c **** }
+ 516              		.loc 1 126 1
+ 517 0018 1846     		mov	r0, r3
+ 518 001a BD46     		mov	sp, r7
+ 519              		.cfi_def_cfa_register 13
+ 520              		@ sp needed
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 12
+
+
+ 521 001c 80BC     		pop	{r7}
+ 522              		.cfi_restore 7
+ 523              		.cfi_def_cfa_offset 0
+ 524 001e 7047     		bx	lr
+ 525              	.L32:
+ 526              		.align	2
+ 527              	.L31:
+ 528 0020 00000000 		.word	flagForButtonPress
+ 529              		.cfi_endproc
+ 530              	.LFE69:
+ 532              		.section	.text.is_button2_press1s,"ax",%progbits
+ 533              		.align	1
+ 534              		.global	is_button2_press1s
+ 535              		.syntax unified
+ 536              		.thumb
+ 537              		.thumb_func
+ 539              	is_button2_press1s:
+ 540              	.LFB70:
+ 127:./Core/Src/button.c **** 
+ 128:./Core/Src/button.c **** //the function check if time_adjust_button is pressed more than 1s or not
+ 129:./Core/Src/button.c **** //reset the flag and turn on again every 1s if it is keep pressing
+ 130:./Core/Src/button.c **** int is_button2_press1s()
+ 131:./Core/Src/button.c **** {
+ 541              		.loc 1 131 1
+ 542              		.cfi_startproc
+ 543              		@ args = 0, pretend = 0, frame = 0
+ 544              		@ frame_needed = 1, uses_anonymous_args = 0
+ 545              		@ link register save eliminated.
+ 546 0000 80B4     		push	{r7}
+ 547              		.cfi_def_cfa_offset 4
+ 548              		.cfi_offset 7, -4
+ 549 0002 00AF     		add	r7, sp, #0
+ 550              		.cfi_def_cfa_register 7
+ 132:./Core/Src/button.c **** 	if(flagForButtonPress1s[1]==1){
+ 551              		.loc 1 132 25
+ 552 0004 064B     		ldr	r3, .L36
+ 553 0006 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 554              		.loc 1 132 4
+ 555 0008 012B     		cmp	r3, #1
+ 556 000a 04D1     		bne	.L34
+ 133:./Core/Src/button.c **** 		flagForButtonPress1s[1] = 0;
+ 557              		.loc 1 133 27
+ 558 000c 044B     		ldr	r3, .L36
+ 559 000e 0022     		movs	r2, #0
+ 560 0010 5A70     		strb	r2, [r3, #1]
+ 134:./Core/Src/button.c **** 		return 1;
+ 561              		.loc 1 134 10
+ 562 0012 0123     		movs	r3, #1
+ 563 0014 00E0     		b	.L35
+ 564              	.L34:
+ 135:./Core/Src/button.c **** 	}
+ 136:./Core/Src/button.c **** 	return 0;
+ 565              		.loc 1 136 9
+ 566 0016 0023     		movs	r3, #0
+ 567              	.L35:
+ 137:./Core/Src/button.c **** }
+ 568              		.loc 1 137 1
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 13
+
+
+ 569 0018 1846     		mov	r0, r3
+ 570 001a BD46     		mov	sp, r7
+ 571              		.cfi_def_cfa_register 13
+ 572              		@ sp needed
+ 573 001c 80BC     		pop	{r7}
+ 574              		.cfi_restore 7
+ 575              		.cfi_def_cfa_offset 0
+ 576 001e 7047     		bx	lr
+ 577              	.L37:
+ 578              		.align	2
+ 579              	.L36:
+ 580 0020 00000000 		.word	flagForButtonPress1s
+ 581              		.cfi_endproc
+ 582              	.LFE70:
+ 584              		.text
+ 585              	.Letext0:
+ 586              		.file 2 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 587              		.file 3 "d:\\stm32cube_ide\\stm32cubeide_1.7.0\\stm32cubeide\\plugins\\com.st.stm32cube.ide.mcu.ex
+ 588              		.file 4 "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h"
+ 589              		.file 5 "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h"
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 button.c
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:18     .bss.buttonBuffer:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:21     .bss.buttonBuffer:0000000000000000 buttonBuffer
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:24     .bss.debounceButtonBuffer0:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:27     .bss.debounceButtonBuffer0:0000000000000000 debounceButtonBuffer0
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:30     .bss.debounceButtonBuffer1:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:33     .bss.debounceButtonBuffer1:0000000000000000 debounceButtonBuffer1
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:36     .bss.debounceButtonBuffer2:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:39     .bss.debounceButtonBuffer2:0000000000000000 debounceButtonBuffer2
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:42     .bss.flagForButtonPress1s:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:45     .bss.flagForButtonPress1s:0000000000000000 flagForButtonPress1s
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:48     .bss.flagForButtonPress:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:51     .bss.flagForButtonPress:0000000000000000 flagForButtonPress
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:54     .bss.counterForButtonPress1s:0000000000000000 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:57     .bss.counterForButtonPress1s:0000000000000000 counterForButtonPress1s
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:60     .text.button_reading:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:66     .text.button_reading:0000000000000000 button_reading
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:312    .text.button_reading:0000000000000170 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:325    .text.is_button1_pressed:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:331    .text.is_button1_pressed:0000000000000000 is_button1_pressed
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:372    .text.is_button1_pressed:0000000000000020 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:377    .text.is_button2_pressed:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:383    .text.is_button2_pressed:0000000000000000 is_button2_pressed
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:424    .text.is_button2_pressed:0000000000000020 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:429    .text.is_button3_pressed:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:435    .text.is_button3_pressed:0000000000000000 is_button3_pressed
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:476    .text.is_button3_pressed:0000000000000020 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:481    .text.is_pede_button_pressed:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:487    .text.is_pede_button_pressed:0000000000000000 is_pede_button_pressed
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:528    .text.is_pede_button_pressed:0000000000000020 $d
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:533    .text.is_button2_press1s:0000000000000000 $t
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:539    .text.is_button2_press1s:0000000000000000 is_button2_press1s
+C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s:580    .text.is_button2_press1s:0000000000000020 $d
+                           .group:0000000000000000 wm4.0.cb5f01749778df26340c4505df3d34d0
+                           .group:0000000000000000 wm4.stm32f1xx_hal_conf.h.22.844a2f06328adeab13e6d7f89c6deb9b
+                           .group:0000000000000000 wm4.stm32f1xx.h.39.208bb8a61c892b7c37d899c49a031330
+                           .group:0000000000000000 wm4.stm32f103xb.h.38.ec967d5ad9d3269cb0788eebda048e38
+                           .group:0000000000000000 wm4._newlib_version.h.4.bfdf54b0af045d4a71376ae00f63a22c
+                           .group:0000000000000000 wm4.features.h.33.318b64d71e0957639cfb30f1db1f7ec8
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.cmsis_version.h.32.4d5822004c01a829a975260e854b5f8e
+                           .group:0000000000000000 wm4.core_cm3.h.66.fc46cac19810db8f98d67da7ef88f42c
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.4f5798e999d5690b80e6ded3ecc94b37
+                           .group:0000000000000000 wm4.core_cm3.h.127.f4474120f1a7524deb56f9d74ff175da
+                           .group:0000000000000000 wm4.stm32f103xb.h.573.10249aa7473ca93be896fed94046a725
+                           .group:0000000000000000 wm4.stm32f1xx.h.162.96b09079a093c34dbd7f0b85cbd0ddee
+                           .group:0000000000000000 wm4.stm32_hal_legacy.h.23.91ba5b544a4c2be2620a1e7ff0049e10
+                           .group:0000000000000000 wm4.stddef.h.39.144cf5ddcd53cbfdac30259dc1a6c87f
+                           .group:0000000000000000 wm4.stm32f1xx_hal_def.h.57.18d01ce1aa74e9fb44dbf16f821a574a
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.95.21591bbc513aaa813c0b8640c3b32517
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc_ex.h.22.8763f99bc1e3e2dcf0febe9161d81b37
+                           .group:0000000000000000 wm4.stm32f1xx_hal_rcc.h.1202.f8e5f9e0cf4eef7840facf5396029056
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.22.fa638d688dcc57ca806fe6a7831b0d04
+ARM GAS  C:\Users\DLCH\AppData\Local\Temp\ccaW8er8.s 			page 15
+
+
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio_ex.h.22.51a50ef3512cd78017ce666a32d364bf
+                           .group:0000000000000000 wm4.stm32f1xx_hal_gpio.h.263.f5ebf2f545ade59412ab9261c8e35dc4
+                           .group:0000000000000000 wm4.stm32f1xx_hal_exti.h.22.e26491d042c8079c3ca67eca341af862
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.22.3c14338534886827bf3aeaa2a7f412a1
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma_ex.h.22.001ac4d7f81ccbdcae49bd65c13858c8
+                           .group:0000000000000000 wm4.stm32f1xx_hal_dma.h.409.cafcd2cfe701091535636be537c18293
+                           .group:0000000000000000 wm4.stm32f1xx_hal_cortex.h.22.b5f4174bb6a50d95405567b8f50e0900
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash.h.22.5cea9a7210e6315b41724b47b5fdf203
+                           .group:0000000000000000 wm4.stm32f1xx_hal_flash_ex.h.22.d4e19c21f2a86fa2f8ec2c2d5f1ab2af
+                           .group:0000000000000000 wm4.stm32f1xx_hal_pwr.h.22.3438c476faafc3240bf146f143df3fcd
+                           .group:0000000000000000 wm4.stm32f1xx_hal_tim.h.22.a16e206564e97dbace9faae59a0d6008
+                           .group:0000000000000000 wm4.stm32f1xx_hal_uart.h.22.5f7992e497faa36aa98f09f7214f4dbb
+                           .group:0000000000000000 wm4.stm32f1xx_hal.h.88.91065c0692bed6019c34f1e9c00589fd
+                           .group:0000000000000000 wm4.main.h.62.d895ccf9707ed1f9c21d5d1ab82a4f23
+
+UNDEFINED SYMBOLS
+HAL_GPIO_ReadPin
