@@ -21,6 +21,9 @@ int timer3_counter = 0;
 int timer4_flag = 0;
 int timer4_counter = 0;
 
+// Add params for timer 5
+int timer5_flag = 0;
+int timer5_counter = 0;
 
 void setTimer1(uint32_t duration){
 	timer1_counter = duration/TIMER_CYCLE;
@@ -41,6 +44,12 @@ void setTimer4(uint32_t duration)
 {
 	timer4_counter = duration/TIMER_CYCLE;
 	timer4_flag = 0;
+}
+
+void setTimer5(uint32_t duration)
+{
+	timer5_counter = duration/TIMER_CYCLE;
+	timer5_flag = 0;
 }
 
 
@@ -67,6 +76,12 @@ void timerRun(){
 				timer4_counter--;
 				if(timer4_counter <=0){
 					timer4_flag =1;
+				}
+		}
+	if(timer5_counter >0){
+				timer5_counter--;
+				if(timer5_counter <=0){
+					timer5_flag =1;
 				}
 		}
 }

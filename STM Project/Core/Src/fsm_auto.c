@@ -38,7 +38,7 @@ void fsm_automatic_run()
 			break;
 		}
 		//no error, prepare for changing to S1
-		setTimer4(red_time);// Init the counter
+		setTimer4(1000);// Init the counter
 		setTimer1(green_time);
 		setTimer2(red_time);
 		setTimer3(BLINK_TIME);
@@ -127,7 +127,7 @@ void fsm_automatic_run()
 		break;
 	default:
 		break;
-	if (timer4_flag = 1)
+	if (timer4_flag == 1)
 	{
 		setTimer4(1000);
 		UART_Parse(SEG_counter);

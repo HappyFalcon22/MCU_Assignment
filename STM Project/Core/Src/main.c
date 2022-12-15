@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "global.h"
@@ -97,15 +98,20 @@ int main(void)
 	MX_USART2_UART_Init();
 	/* USER CODE BEGIN 2 */
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 	//state = INIT;
+	setTimer5(BASE_DELAY);
+	setTimer4(10000);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		fsm_automatic_run();
-		fsm_manual_run();
+		//fsm_automatic_run();
+		//fsm_manual_run();
+		buzzerRun();
+		//__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, 100);
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

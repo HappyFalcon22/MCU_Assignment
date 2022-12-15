@@ -12,6 +12,7 @@
 #include "software_timer.h"
 #include "main.h"
 #include "task.h"
+#include "buzzer.h"
 
 extern uint32_t red_time;
 extern uint32_t yellow_time;

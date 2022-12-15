@@ -26,7 +26,7 @@ Core/Src/software_timer.o: ../Core/Src/software_timer.c \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/task.h
+ ../Core/Inc/task.h ../Core/Inc/buzzer.h
 ../Core/Inc/global.h:
 ../Core/Inc/button.h:
 ../Core/Inc/global.h:
@@ -58,3 +58,4 @@ Core/Src/software_timer.o: ../Core/Src/software_timer.c \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
 ../Core/Inc/task.h:
+../Core/Inc/buzzer.h:

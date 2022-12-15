@@ -13,10 +13,11 @@
 
 #define BLINK_TIME 1000
 
-extern int timer1_flag;
-extern int timer2_flag;
-extern int timer3_flag;
+extern int timer1_flag; // For road1
+extern int timer2_flag;	// For road2
+extern int timer3_flag;	// For blinky LED in MANUAL
 extern int timer4_flag; // For 7SEG Counter
+extern int timer5_flag; // For the buzzer
 
 void timerRun();
 
@@ -24,6 +25,7 @@ void setTimer1(uint32_t duration);
 void setTimer2(uint32_t duration);
 void setTimer3(uint32_t duration);
 void setTimer4(uint32_t duration);
+void setTimer5(uint32_t duration);
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
