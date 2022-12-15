@@ -27,6 +27,9 @@ void buzzerRun()
 		i = (i + 1) % 2;
 		// This is the equation with desired coefficients
 		delay = a * SEG_counter + b;
+		value[0] += 10;
+		if (value[0] >= 999)
+			value[0] = 100;
 	}
 	if (timer4_flag == 1)
 	{

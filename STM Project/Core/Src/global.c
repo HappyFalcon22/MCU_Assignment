@@ -19,10 +19,13 @@ uint32_t temp_green_time = 1000;
 uint32_t temp_yellow_time = 1000;
 
 // Declare the counter to red_time
-uint32_t SEG_counter = 10; // Initial time of red_time
+uint32_t SEG_counter = 0; // Initial time of red_time
 
 //state use in fsm
 enum status state = INIT;
+
+// huart2
+UART_HandleTypeDef huart2;
 
 // UART Callback declare
 uint8_t temp = 0;

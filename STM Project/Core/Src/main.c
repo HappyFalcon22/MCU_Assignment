@@ -44,7 +44,7 @@
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
-UART_HandleTypeDef huart2;
+// UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -102,6 +102,8 @@ int main(void)
 	//state = INIT;
 	setTimer5(BASE_DELAY);
 	setTimer4(10000);
+
+	SEG_counter = 10; // Delete later
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

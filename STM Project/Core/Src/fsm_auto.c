@@ -34,10 +34,12 @@ void fsm_automatic_run()
 				//reset all button flag
 				is_button2_pressed();
 				is_button3_pressed();
+
 			}
 			break;
 		}
 		//no error, prepare for changing to S1
+		SEG_counter = red_time;
 		setTimer4(1000);// Init the counter
 		setTimer1(green_time);
 		setTimer2(red_time);
@@ -127,6 +129,7 @@ void fsm_automatic_run()
 		break;
 	default:
 		break;
+	}
 	if (timer4_flag == 1)
 	{
 		setTimer4(1000);
@@ -135,6 +138,5 @@ void fsm_automatic_run()
 			SEG_counter--;
 		else
 			SEG_counter = red_time / 1000;
-	}
 	}
 }
