@@ -26,7 +26,7 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_yellow_time = temp_yellow_time% 30000 + 1000;
-			SEG_counter = temp_yellow_time;
+			SEG_counter = temp_yellow_time/1000;
 			UART_Parse();
 		}
 
@@ -44,7 +44,7 @@ void fsm_manual_run()
 			is_button2_pressed();
 			is_button3_pressed();
 
-			SEG_counter = temp_green_time;
+			SEG_counter = temp_green_time/1000;
 			UART_Parse();
 		}
 		break;
@@ -56,7 +56,7 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_green_time = temp_green_time% 30000 + 1000;
-			SEG_counter = temp_green_time;
+			SEG_counter = temp_green_time/1000;
 			UART_Parse();
 		}
 
@@ -81,7 +81,7 @@ void fsm_manual_run()
 		//range of time is [1-30]
 		if(is_button2_pressed() || is_button2_press1s()){
 			temp_red_time = temp_red_time% 30000 + 1000;
-			SEG_counter = temp_red_time;
+			SEG_counter = temp_red_time/1000;
 			UART_Parse();
 		}
 		//set_button is pressed -> save temp value
@@ -98,7 +98,7 @@ void fsm_manual_run()
 			is_button2_pressed();
 			is_button3_pressed();
 
-			SEG_counter = temp_yellow_time;
+			SEG_counter = temp_yellow_time/1000;
 			UART_Parse();
 		}
 		break;

@@ -96,10 +96,10 @@ void turn_all_led_off()
 }
 
 // Add task for UART
+char str[15];		//buffer store data to send
 void UART_Parse()
 {
-	char str[15];
-	sprintf(str, "!7SEG:%lu#\r\n", SEG_counter/1000);
-	HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), 10000);
+	sprintf(str, "!7SEG:%lu#\r\n", SEG_counter);
+	HAL_UART_Transmit(&huart2, (uint8_t*)str, strlen(str), 2000);
 }
 
