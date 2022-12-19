@@ -27,20 +27,16 @@ const int d = LAST_VALUE;
 
 void buzzerRun()
 {
-	if (timer5_flag == 1)
+
+	green_pedes_on();
+	if (timer4_flag == 1)
 	{
-		setTimer5(delay);
+		setTimer4(delay);
 		__HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_1, value[i]);
 		i = (i + 1) % 2;
 		// This is the equation with desired coefficients
 		delay = a * SEG_counter + b;
 		value[0] = c * SEG_counter + d;
 	}
-	if (timer4_flag == 1)
-	{
-		setTimer4(10000);
-		SEG_counter--;
-		if (SEG_counter <= 0)
-			SEG_counter = BASE_TIME;
-	}
+	// Delete this
 }

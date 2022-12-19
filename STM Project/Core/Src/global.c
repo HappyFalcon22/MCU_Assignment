@@ -18,6 +18,8 @@ uint32_t temp_red_time = 1000;
 uint32_t temp_green_time = 1000;
 uint32_t temp_yellow_time = 1000;
 
+int mode_flag = 0;
+
 // Declare the counter to red_time
 uint32_t SEG_counter = 0; // Initial time of red_time
 

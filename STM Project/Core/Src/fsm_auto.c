@@ -82,6 +82,12 @@ void fsm_automatic_run()
 			is_button2_pressed();
 			is_button3_pressed();
 		}
+
+		// Pedes light
+		if (is_pede_button_pressed())
+		{
+			mode_flag = 1;
+		}
 		break;
 	case S2:
 		yellow1_on();
@@ -116,6 +122,13 @@ void fsm_automatic_run()
 			is_button2_pressed();
 			is_button3_pressed();
 		}
+
+		// Pedes light
+		if (is_pede_button_pressed())
+		{
+			mode_flag = 1;
+		}
+
 		break;
 	case S3:
 		red1_on();
@@ -144,6 +157,21 @@ void fsm_automatic_run()
 			is_button2_pressed();
 			is_button3_pressed();
 		}
+
+		// Pedes light
+		if (is_pede_button_pressed())
+		{
+			if (mode_flag == 0)
+				mode_flag = 1;
+			else
+				mode_flag = 0;
+		}
+
+		if (mode_flag == 1)
+		{
+			buzzerRun();
+		}
+
 		break;
 	case S4:
 		red1_on();
@@ -161,6 +189,11 @@ void fsm_automatic_run()
 			setTimer1(green_time);
 			setTimer2(red_time);
 			state = S1;
+
+			// Turn off pedes light
+			HAL_GPIO_WritePin(PEDE_LIGHT_A_GPIO_Port, PEDE_LIGHT_A_Pin, RESET);
+			HAL_GPIO_WritePin(PEDE_LIGHT_B_GPIO_Port, PEDE_LIGHT_B_Pin, RESET);
+
 			SEG_counter = green_time/1000;
 			UART_Parse();
 			setTimer3(1000);
@@ -175,6 +208,20 @@ void fsm_automatic_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+		}
+
+		// Pedes light
+		if (is_pede_button_pressed())
+		{
+			if (mode_flag == 0)
+				mode_flag = 1;
+			else
+				mode_flag = 0;
+		}
+
+		if (mode_flag == 1)
+		{
+			buzzerRun();
 		}
 		break;
 	default:

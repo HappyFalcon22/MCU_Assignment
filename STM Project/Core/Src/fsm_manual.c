@@ -75,7 +75,6 @@ void fsm_manual_run()
 		break;
 	case RED_ADJUST:
 		red_blink();
-
 		//when time_button pressed -> increase time by 1
 		//when keep pressing -> increase 1 every 1 second
 		//range of time is [1-30]

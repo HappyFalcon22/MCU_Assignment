@@ -22,6 +22,9 @@ extern uint32_t temp_red_time;
 extern uint32_t temp_green_time;
 extern uint32_t temp_yellow_time;
 
+// Add a mode flag
+extern int mode_flag;
+
 // Add a counter
 extern uint32_t SEG_counter;
 

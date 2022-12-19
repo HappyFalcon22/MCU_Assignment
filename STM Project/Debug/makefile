@@ -52,6 +52,12 @@ default.size.stdout \
 OBJDUMP_LIST += \
 Traffic_Light_Assignment.list \
 
+OBJCOPY_HEX += \
+Traffic_Light_Assignment.hex \
+
+OBJCOPY_BIN += \
+Traffic_Light_Assignment.bin \
+
 
 # All Target
 all: main-build
@@ -60,8 +66,8 @@ all: main-build
 main-build: Traffic_Light_Assignment.elf secondary-outputs
 
 # Tool invocations
-Traffic_Light_Assignment.elf Traffic_Light_Assignment.map: $(OBJS) $(USER_OBJS) D:\STM32CUBE_IDE\BTL\MCU_Assignment\STM\ Project\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Traffic_Light_Assignment.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"D:\STM32CUBE_IDE\BTL\MCU_Assignment\STM Project\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Traffic_Light_Assignment.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Traffic_Light_Assignment.elf Traffic_Light_Assignment.map: $(OBJS) $(USER_OBJS) C:\Users\Admin\Desktop\MCU_Assignment\MCU_Assignment\STM\ Project\STM32F103RBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Traffic_Light_Assignment.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\Admin\Desktop\MCU_Assignment\MCU_Assignment\STM Project\STM32F103RBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Traffic_Light_Assignment.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -75,12 +81,22 @@ Traffic_Light_Assignment.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_T
 	@echo 'Finished building: $@'
 	@echo ' '
 
+Traffic_Light_Assignment.hex: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O ihex $(EXECUTABLES) "Traffic_Light_Assignment.hex"
+	@echo 'Finished building: $@'
+	@echo ' '
+
+Traffic_Light_Assignment.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "Traffic_Light_Assignment.bin"
+	@echo 'Finished building: $@'
+	@echo ' '
+
 # Other Targets
 clean:
-	-$(RM) Traffic_Light_Assignment.elf Traffic_Light_Assignment.list Traffic_Light_Assignment.map default.size.stdout
+	-$(RM) Traffic_Light_Assignment.bin Traffic_Light_Assignment.elf Traffic_Light_Assignment.hex Traffic_Light_Assignment.list Traffic_Light_Assignment.map default.size.stdout
 	-@echo ' '
 
-secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
+secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST) $(OBJCOPY_HEX) $(OBJCOPY_BIN)
 
 fail-specified-linker-script-missing:
 	@echo 'Error: Cannot find the specified linker script. Check the linker settings in the build configuration.'
