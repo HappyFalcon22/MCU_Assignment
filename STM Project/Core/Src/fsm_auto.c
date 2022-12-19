@@ -32,6 +32,8 @@ void fsm_automatic_run()
 			turn_all_led_off();
 			if(is_button1_pressed()){
 				state = RED_ADJUST;
+				red1_on();
+				red2_on();
 				//display temp time
 				SEG_counter = temp_red_time/1000;
 				UART_Parse();
@@ -75,6 +77,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual: RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//display temp time
 			SEG_counter = temp_red_time/1000;
 			UART_Parse();
@@ -115,6 +119,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//display temp time
 			SEG_counter = temp_red_time/1000;
 			UART_Parse();
@@ -150,6 +156,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//display temp time
 			SEG_counter = temp_red_time/1000;
 			UART_Parse();
@@ -202,6 +210,8 @@ void fsm_automatic_run()
 		//Mode_button is pressed -> turn to manual RED_ADJUST
 		if(is_button1_pressed()){
 			state = RED_ADJUST;
+			red1_on();
+			red2_on();
 			//display temp time
 			SEG_counter = temp_red_time/1000;
 			UART_Parse();
