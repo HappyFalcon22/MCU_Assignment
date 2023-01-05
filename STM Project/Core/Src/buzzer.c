@@ -11,24 +11,13 @@ int value[2] = {START, OFF};
 int delay = BASE_DELAY;
 int i = 0;
 
-// Set a linear equation for the speed of the buzzer
-// Take 2 points : (time, delay) = {(BASE_TIME, BASE_DELAY); (0, LAST_DELAY)}
-// Built the coefficients a, b of : y = ax + b
-
-const int a = (BASE_DELAY - LAST_DELAY) / BASE_TIME;
-const int b = LAST_DELAY;
-
-// Set a linear equation for the volume of the buzzer
-// Take 2 points : (time, delay) = ((BASE_TIME, BASE_VALUE); (0, LAST_VALUE))
-// Built the coefficients c, d of : y = cx + d
-
-const int c = (BASE_VALUE - LAST_VALUE) / BASE_TIME;
-const int d = LAST_VALUE;
-
 void buzzerRun()
 {
-
-	green_pedes_on();
+	int base_time = red_time;
+	int a = (BASE_DELAY - LAST_DELAY) / base_time;
+	int b = LAST_DELAY;
+	int c = (BASE_VALUE - LAST_VALUE) / base_time;
+	int d = LAST_VALUE;
 	if (timer4_flag == 1)
 	{
 		setTimer4(delay);

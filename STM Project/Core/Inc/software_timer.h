@@ -17,7 +17,7 @@ extern int timer1_flag; // For road1
 extern int timer2_flag;	// For road2
 extern int timer3_flag;	// For blinky LED in MANUAL
 extern int timer4_flag; // For the buzzer
-extern int timer5_flag; // For
+extern int timer5_flag; // For the timeout
 
 void timerRun();
 

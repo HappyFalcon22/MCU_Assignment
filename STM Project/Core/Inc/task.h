@@ -24,6 +24,7 @@ void yellow2_on();
 // Light for pedestrians
 void red_pedes_on();
 void green_pedes_on();
+void turn_pedes_off();
 
 
 // UART transmission of count-down time

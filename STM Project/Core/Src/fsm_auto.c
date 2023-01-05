@@ -19,6 +19,7 @@
  * Timer2: control time of road2
  * Timer3: count down for uart in auto
  */
+int buzz_flag = 0;
 void fsm_automatic_run()
 {
 
@@ -56,6 +57,7 @@ void fsm_automatic_run()
 		state = S1;
 		break;
 	case S1:
+		buzz_flag = 0;
 		green1_on();
 		red2_on();
 		//uart count down
@@ -85,15 +87,33 @@ void fsm_automatic_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			// Turn off buzzer and light
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		// Pedes light
 		if (is_pede_button_pressed())
 		{
-			mode_flag = 1;
+			if (mode_flag == 0)
+				mode_flag = 1;
+			setTimer5(SEG_counter * 1000 + red_time);
+		}
+
+		if (mode_flag == 1)
+		{
+			red_pedes_on();
+		}
+
+		if (timer5_flag == 1)
+		{
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 		break;
 	case S2:
+		buzz_flag = 0;
 		yellow1_on();
 		red2_on();
 
@@ -127,16 +147,34 @@ void fsm_automatic_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			// Turn off buzzer and light
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		// Pedes light
 		if (is_pede_button_pressed())
 		{
-			mode_flag = 1;
+			if (mode_flag == 0)
+				mode_flag = 1;
+			setTimer5(SEG_counter * 1000 + red_time);
+		}
+
+		if (mode_flag == 1)
+		{
+			red_pedes_on();
+		}
+
+		if (timer5_flag == 1)
+		{
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		break;
 	case S3:
+		buzz_flag = 1;
 		red1_on();
 		green2_on();
 
@@ -164,6 +202,10 @@ void fsm_automatic_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			// Turn off buzzer and light
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		// Pedes light
@@ -171,17 +213,28 @@ void fsm_automatic_run()
 		{
 			if (mode_flag == 0)
 				mode_flag = 1;
-			else
-				mode_flag = 0;
+			setTimer5(SEG_counter * 1000 + 2 * red_time);
 		}
 
 		if (mode_flag == 1)
 		{
+			green_pedes_on();
+		}
+
+		if ((mode_flag == 1) && (buzz_flag == 1))
+		{
 			buzzerRun();
+		}
+		// Timeout
+		if (timer5_flag == 1)
+		{
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		break;
 	case S4:
+		buzz_flag = 1;
 		red1_on();
 		yellow2_on();
 
@@ -218,6 +271,10 @@ void fsm_automatic_run()
 			//reset all button flag
 			is_button2_pressed();
 			is_button3_pressed();
+
+			// Turn off buzzer and light
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 
 		// Pedes light
@@ -225,13 +282,22 @@ void fsm_automatic_run()
 		{
 			if (mode_flag == 0)
 				mode_flag = 1;
-			else
-				mode_flag = 0;
+			setTimer5(SEG_counter * 1000 + 2 * red_time);
 		}
-
 		if (mode_flag == 1)
 		{
+			green_pedes_on();
+		}
+
+		if ((mode_flag == 1) && (buzz_flag == 1))
+		{
 			buzzerRun();
+		}
+		// Timeout
+		if (timer5_flag == 1)
+		{
+			turn_pedes_off();
+			mode_flag = 0;
 		}
 		break;
 	default:

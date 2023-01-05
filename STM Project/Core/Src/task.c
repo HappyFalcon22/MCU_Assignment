@@ -85,6 +85,12 @@ void green_pedes_on()
 	HAL_GPIO_WritePin(PEDE_LIGHT_B_GPIO_Port, PEDE_LIGHT_B_Pin, SET);
 }
 
+void turn_pedes_off()
+{
+	HAL_GPIO_WritePin(PEDE_LIGHT_A_GPIO_Port, PEDE_LIGHT_A_Pin, RESET);
+	HAL_GPIO_WritePin(PEDE_LIGHT_B_GPIO_Port, PEDE_LIGHT_B_Pin, RESET);
+}
+
 
 //this function is used when error detected
 void turn_all_led_off()

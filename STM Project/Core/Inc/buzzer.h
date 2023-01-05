@@ -14,7 +14,7 @@
 
 #define	START	100
 #define	OFF		0
-#define BASE_TIME	50
+#define BASE_TIME	10
 
 // Start and End desired delay
 #define BASE_DELAY	5000

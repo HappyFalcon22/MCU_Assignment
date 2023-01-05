@@ -9,5 +9,6 @@
 ../Core/Src/task.c:69:6:yellow2_on	8	static
 ../Core/Src/task.c:76:6:red_pedes_on	8	static
 ../Core/Src/task.c:82:6:green_pedes_on	8	static
-../Core/Src/task.c:90:6:turn_all_led_off	8	static
-../Core/Src/task.c:100:6:UART_Parse	8	static
+../Core/Src/task.c:88:6:turn_pedes_off	8	static
+../Core/Src/task.c:96:6:turn_all_led_off	8	static
+../Core/Src/task.c:106:6:UART_Parse	8	static
